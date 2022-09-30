@@ -1,5 +1,6 @@
 #pragma once
 #include "MotionBlur.h"
+#include "Bloom.h"
 namespace nsK2EngineLow {
 	class PostEffect
 	{
@@ -11,6 +12,7 @@ namespace nsK2EngineLow {
 		void MotionBlurDraw(RenderContext& rc);
 	private:
 		MotionBlur m_motionBlur;
+		Bloom m_bloom;
 	};
 
 	extern PostEffect g_postEffect;

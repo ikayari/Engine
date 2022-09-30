@@ -3,7 +3,7 @@
 
 namespace nsK2EngineLow {
 
-	Bloom g_bloom;
+
 
 
 
@@ -35,7 +35,7 @@ namespace nsK2EngineLow {
 		copyToFrameBufferSprite.Draw(rc);
 	}
 	void Bloom::InitLuminanceSprite()
-	{
+	{	
 		//step-4 輝度抽出用のスプライトを初期化。
 		//初期化情報を作成する。
 		SpriteInitData luminanceSpriteInitData;

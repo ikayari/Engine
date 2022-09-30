@@ -46,10 +46,17 @@ namespace nsK2EngineLow {
 		/// 描画処理。
 		/// </summary>
 		void Draw(RenderContext& rc);
-
+		/// <summary>
+		/// 影を落とすかどうか。
+		/// </summary>
+		/// <param name="castershadow">影を落とす？</param>
 		void SetCasterShadow(const bool castershadow)
 		{
 			m_isShadowCaster = castershadow;
+		}
+		void SetOutLineDraw(const bool outline)
+		{
+			m_isOutLineModel = outline;
 		}
 		/// <summary>
 		/// 座標をセット。
@@ -150,6 +157,14 @@ namespace nsK2EngineLow {
 			const char* tkmFilePath,
 			EnModelUpAxis modelUpAxis);
 		/// <summary>
+		/// アウトライン描画用モデルの初期化。
+		/// </summary>
+		/// <param name="tkmFilePath">ファイルパス名</param>
+		/// <param name="modelUpAxis">モデルの上方向</param>
+		void InitOutLineModel(
+			const char* tkmFilePath,
+			EnModelUpAxis modelUpAxis);
+		/// <summary>
 		/// シャドウマップへの描画パスから呼ばれる処理。
 		/// </summary>
 		/// <param name="rc">レンダリングコンテキスト</param>
@@ -159,9 +174,22 @@ namespace nsK2EngineLow {
 			RenderContext& rc,
 			const Matrix& lvpMatrix
 		)override;
+		/// <summary>
+		/// アウトライン描画用モデルを描画する際、描画パスから呼ばれる処理
+		/// </summary>
+		/// <param name="rc">レンダリングコンテキスト</param>
+		void OnRenderOutLineModel(RenderContext& rc)
+		{
+			if (m_isOutLineModel&&m_outlinemodel.IsInited())
+			{
+				m_outlinemodelpe.Draw(rc);
+			}
+		}
 		
 		Model					m_model;								//モデル。
 		Model					m_shadowmodel;							//シャドウモデル。
+		Model					m_outlinemodel;							//アウトライン描画用モデル。
+		Model					m_outlinemodelpe;
 		Animation				m_animation;							//アニメーション。
 		AnimationClip*			m_animationClip = nullptr;				//アニメーションクリップ。
 		int						m_numAnimationClips = 0;				//アニメーションクリップの数。
@@ -171,7 +199,8 @@ namespace nsK2EngineLow {
 		Quaternion				m_rotation = Quaternion::Identity;		//回転。
 		Vector3					m_scale = Vector3::One;					//拡大率。
 		EnModelUpAxis			m_enFbxUpAxis = enModelUpAxisZ;			// FBXの上方向。
-		bool					m_isShadowCaster = true;
+		bool					m_isShadowCaster = true;				//シャドウを落とす？
+		bool					m_isOutLineModel = false;				//アウトライン描画モデル？
 
 		ModelRenderCB m_modelCB = g_renderingEngine.GetModelRenderCB();
 

@@ -38,6 +38,14 @@ namespace nsK2EngineLow {
 
 		}
 		/// <summary>
+		/// アウトライン描画用モデル描画。
+		/// </summary>
+		/// <param name="rc">レンダーコンテキスト</param>
+		virtual void OnRenderOutLineModel(RenderContext& rc)
+		{
+
+		}
+		/// <summary>
 		/// シャドウキャスター？
 		/// </summary>
 		/// <returns>trueが帰ってくるとシャドウキャスター</returns>

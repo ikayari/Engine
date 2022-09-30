@@ -22,7 +22,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	g_renderingEngine.Init();
 	g_postEffect.Init();
-	g_bloom.Init();
+	
 
 
 	NewGO<Game>(0, "game");

@@ -19,6 +19,7 @@ namespace nsK2EngineLow {
 			DXGI_FORMAT_R32G32B32A32_FLOAT,
 			DXGI_FORMAT_D32_FLOAT
 		);
+		m_bloom.Init();
 
 	}
 
@@ -31,34 +32,42 @@ namespace nsK2EngineLow {
 		// レンダリングターゲットをクリア
 		rc.ClearRenderTargetView(g_postEffect.luminanceRenderTarget);
 
-		g_bloom.LuminanceSpriteDraw(rc);
+		m_bloom.LuminanceSpriteDraw(rc);
 
 		// レンダリングターゲットへの書き込み終了待ち
 		rc.WaitUntilFinishDrawingToRenderTarget(g_postEffect.luminanceRenderTarget);
 
-		g_bloom.Blur(rc);
+		m_bloom.Blur(rc);
 
-		g_bloom.Render(rc, g_renderingEngine.GetmainRenderTarget());
+		m_bloom.Render(rc, g_renderingEngine.GetmainRenderTarget());
 		// step-5 画面に表示されるレンダリングターゲットに戻す
 		rc.SetRenderTarget(
 			g_graphicsEngine->GetCurrentFrameBuffuerRTV(),
 			g_graphicsEngine->GetCurrentFrameBuffuerDSV()
 		);
-		g_bloom.Draw(rc);
+		m_bloom.Draw(rc);
 		m_motionBlur.Render(rc);
-		SpriteInitData spriteInitData;
+		SpriteInitData luminanceSpriteInitData;
+		
+		luminanceSpriteInitData.m_fxFilePath = "Assets/shader/OutLine_PostEffect.fx";
+		
+		luminanceSpriteInitData.m_vsEntryPointFunc = "VSMain";
+		
+		luminanceSpriteInitData.m_psEntryPoinFunc = "PSMain";
+		
+		luminanceSpriteInitData.m_width = 1600;
+		luminanceSpriteInitData.m_height = 900;
+		
+		luminanceSpriteInitData.m_textures[0] = &g_renderingEngine.GetnormalRenderTarget().GetRenderTargetTexture();
+		luminanceSpriteInitData.m_textures[1] = &g_renderingEngine.GetdepthOutLineRenderTarget().GetRenderTargetTexture();
+		//描き込むレンダリングターゲットのフォーマットを指定する。
+		luminanceSpriteInitData.m_colorBufferFormat[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-		spriteInitData.m_textures[0] = &g_renderingEngine.GetvelocityRenderTarget().GetRenderTargetTexture();
-		spriteInitData.m_width = 1600;
-		spriteInitData.m_height = 900;
-		spriteInitData.m_fxFilePath = "Assets/shader/sprite.fx";
-
-		Sprite spsp;
-		spsp.Init(spriteInitData);
-		if (g_pad[0]->IsPress(enButtonSelect))
-		{
-			spsp.Draw(rc);
-		}
+		//作成した初期化情報をもとにスプライトを初期化する。
+		luminanceSpriteInitData.m_alphaBlendMode = AlphaBlendMode_Multiply;
+		Sprite sprite;
+		sprite.Init(luminanceSpriteInitData);
+		sprite.Draw(rc);
 	}
 	void PostEffect::MotionBlurDraw(RenderContext& rc)
 	{

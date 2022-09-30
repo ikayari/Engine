@@ -27,14 +27,37 @@ namespace nsK2EngineLow
 		m_modelRenderCB.m_lvp = GetLightCamera().GetViewProjectionMatrix();
 		// ゲームオブジェクトマネージャーの描画処理を呼び出す。
 		
-		ShadowMapDraw(rc);
+		
 		
 		DrawModelAndDepth(rc);
+		ShadowMapDraw(rc);
+		DrawOutLine(rc);
+		
 		EffectEngine::GetInstance()->Draw();
 		m_postEffect->Render(rc);
 
 		Render2DDraw(rc);
 		m_renderobject.clear();
+	}
+	void RenderingEngine::DrawOutLine(RenderContext& rc)
+	{
+
+		RenderTarget* rts[] = {
+			&g_renderingEngine.GetnormalRenderTarget(),
+			&g_renderingEngine.GetdepthOutLineRenderTarget()
+		};
+		//レンダリングターゲットとして利用できるまで待つ
+		rc.WaitUntilToPossibleSetRenderTargets(2, rts);
+		//レンダリングターゲットを設定。
+		rc.SetRenderTargetsAndViewport(2, rts);
+		// レンダリングターゲットをクリア
+		rc.ClearRenderTargetViews(2, rts);
+		for (auto& renderObj : m_renderobject) {
+			renderObj->OnRenderOutLineModel(rc);
+		}
+		// レンダリングターゲットへの書き込み終了待ち
+		rc.WaitUntilFinishDrawingToRenderTargets(2, rts);
+
 	}
 	void RenderingEngine::DrawModelAndDepth(RenderContext& rc)
 	{
@@ -85,6 +108,22 @@ namespace nsK2EngineLow
 			1,
 			1,
 			DXGI_FORMAT_R32G32B32A32_FLOAT,
+			DXGI_FORMAT_UNKNOWN
+		);
+		m_depthOutLineRenderTarget.Create(
+			1600,
+			900,
+			1,
+			1,
+			DXGI_FORMAT_R32_FLOAT,
+			DXGI_FORMAT_UNKNOWN
+		);
+		m_normalRenderTarget.Create(
+			1600,
+			900,
+			1,
+			1,
+			DXGI_FORMAT_R8G8B8A8_UNORM,
 			DXGI_FORMAT_UNKNOWN
 		);
 	}

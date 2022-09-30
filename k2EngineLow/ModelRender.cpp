@@ -28,6 +28,11 @@ namespace nsK2EngineLow {
 		m_animation.Progress(g_gameTime->GetFrameDeltaTime()* m_animationSpeed);
 		m_model.UpdateWorldMatrix(m_position, m_rotation, m_scale);
 		m_shadowmodel.UpdateWorldMatrix(m_position, m_rotation, m_scale);
+		if (m_isOutLineModel)
+		{
+			m_outlinemodel.UpdateWorldMatrix(m_position, m_rotation, m_scale);
+			m_outlinemodelpe.UpdateWorldMatrix(m_position, m_rotation, m_scale);
+		}
 	}
 	void ModelRender::Draw(RenderContext& rc)
 	{
@@ -37,8 +42,44 @@ namespace nsK2EngineLow {
 		m_modelCB.m_prevWorldMatrix = m_model.GetWorldMatrix();
 		m_modelCB.m_prevViewMatrix = g_camera3D->GetViewProjectionMatrix();
 		m_modelCB.m_prevProjectionMatrix = g_camera3D->GetProjectionMatrix();
-				
+		if (m_isOutLineModel)
+		{
+			//m_outlinemodel.Draw(rc);
+		}
 		g_renderingEngine.AddRenderObject(this);
+	}
+	void ModelRender::InitOutLineModel(const char* tkmFilePath, EnModelUpAxis modelUpAxis)
+	{
+		ModelInitData initData;
+		initData.m_fxFilePath = "Assets/shader/OutLine.fx";
+		initData.m_cullMode = D3D12_CULL_MODE_FRONT;
+
+
+		m_modelCB = g_renderingEngine.GetModelRenderCB();
+
+		//モデルの定数バッファ用の情報をモデルの初期化情報として渡す。
+		initData.m_expandConstantBuffer = &m_modelCB;
+		initData.m_expandConstantBufferSize = sizeof(m_modelCB);
+		if (m_animationClip == nullptr)
+		{
+			//ノンスキンメッシュ用の頂点シェーダーのエントリーポイントを指定する。
+			initData.m_vsEntryPointFunc = "VSMain";
+		}
+		else
+		{
+			//スキンメッシュ用の頂点シェーダーのエントリーポイントを指定。
+			initData.m_vsSkinEntryPointFunc = "VSSkinMain";
+			//スケルトンを指定する。
+			initData.m_skeleton = &m_skeleton;
+
+		}
+		
+		initData.m_tkmFilePath = tkmFilePath;
+		m_enFbxUpAxis = modelUpAxis;
+		initData.m_modelUpAxis = m_enFbxUpAxis;
+		m_outlinemodel.Init(initData);
+		initData.m_fxFilePath = "Assets/shader/OutLineModel.fx";
+		m_outlinemodelpe.Init(initData);
 	}
 	void ModelRender::Init(const char* filePath,
 		AnimationClip* animationClips,
@@ -54,13 +95,17 @@ namespace nsK2EngineLow {
 		else if (m_modelRenderID.dithering==en_dithering)
 		{
 			initData.m_fxFilePath = "Assets/shader/DitheringShader.fx";
+			
+			
 		}
 		else if(m_modelRenderID.dithering==en_pixeldithering)
 		{
 			initData.m_fxFilePath = "Assets/shader/PixelDithering.fx";
 		}
-		initData.m_fxFilePath = "Assets/shader/model.fx";
-		
+		if (m_isOutLineModel)
+		{
+			initData.m_fxFilePath = "Assets/shader/faketoonshader.fx";
+		}
 		m_modelCB = g_renderingEngine.GetModelRenderCB();
 		m_modelCB.m_prevWorldMatrix = m_model.GetWorldMatrix();
 		m_modelCB.m_prevViewMatrix = g_camera3D->GetViewProjectionMatrix();
@@ -94,11 +139,14 @@ namespace nsK2EngineLow {
 		//シャドウマップを拡張SRVに設定する。
 		initData.m_expandShaderResoruceView[0] = &g_renderingEngine.GetShadowMap();
 		initData.m_tkmFilePath = filePath;
-		
 		m_enFbxUpAxis = enModelUpAxis;
 		initData.m_modelUpAxis = m_enFbxUpAxis;
 		m_model.Init(initData);
 		InitShadowModel(filePath, m_enFbxUpAxis);
+		if (m_isOutLineModel)
+		{
+			InitOutLineModel(filePath, m_enFbxUpAxis);
+		}
 
 	}
 	void ModelRender::InitSkeleton(const char* filePath)

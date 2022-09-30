@@ -51,6 +51,8 @@ namespace nsK2EngineLow
 
 		void DrawModelAndDepth(RenderContext& rc);
 
+		void DrawOutLine(RenderContext& rc);
+
 		Texture& GetShadowMap()
 		{
 			return m_shadowMapRender.GetShadowMap();
@@ -75,6 +77,14 @@ namespace nsK2EngineLow
 		{
 			return m_velocityRenderTarget;
 		}
+		RenderTarget& GetdepthOutLineRenderTarget()
+		{
+			return m_depthOutLineRenderTarget;
+		}
+		RenderTarget& GetnormalRenderTarget()
+		{
+			return m_normalRenderTarget;
+		}
 	private:
 		std::vector<IRenderer*> m_renderobject;
 		ShadowMapRender m_shadowMapRender;
@@ -82,7 +92,9 @@ namespace nsK2EngineLow
 		ModelRenderCB m_modelRenderCB;
 		RenderTarget m_mainRenderTarget;
 		RenderTarget m_depthRenderTarget;
+		RenderTarget m_depthOutLineRenderTarget;
 		RenderTarget m_velocityRenderTarget;
+		RenderTarget m_normalRenderTarget;
 	};
 	
 	extern RenderingEngine g_renderingEngine;

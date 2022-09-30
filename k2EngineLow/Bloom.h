@@ -1,5 +1,5 @@
 #pragma once
-
+#include "graphics/GaussianBlur.h"
 namespace nsK2EngineLow {
 	class Bloom
 	{
@@ -29,6 +29,5 @@ namespace nsK2EngineLow {
 		Sprite copyToFrameBufferSprite;
 	};
 
-	extern Bloom g_bloom;
 
 }
