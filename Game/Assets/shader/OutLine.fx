@@ -96,7 +96,7 @@ SPSIn VSMainCore(SVSIn vsIn, uniform bool hasSkin)
     }
     psIn.normal = normalize(mul(m, vsIn.normal)); //法線を回転させる。
     float4 defaultpos = vsIn.pos;
-    vsIn.pos += float4(vsIn.normal * 1.0f, 0); //頂点座標を法線方向に押し出すやつ
+    vsIn.pos += float4(vsIn.normal * 0.2f, 0); //頂点座標を法線方向に押し出すやつ
     
     float4 worldpos = mul(m, defaultpos);
     psIn.depthInView = mul(mView, worldpos).z;
@@ -105,6 +105,7 @@ SPSIn VSMainCore(SVSIn vsIn, uniform bool hasSkin)
     psIn.biNormal = normalize(mul(m, vsIn.biNormal));
     psIn.pos = mul(m, vsIn.pos);
     psIn.pos = mul(mView, psIn.pos);
+    psIn.depthInView = psIn.pos.z;
     psIn.pos = mul(mProj, psIn.pos);
     //頂点法線をピクセルシェーダーに渡す。
     psIn.uv = vsIn.uv;
@@ -128,8 +129,6 @@ float4 PSMain(SPSIn psIn) : SV_Target0
 {
     SPSOut psOut;
     psOut.color = (0.0f, 0.0f, 0.0f, 0.0f);
-    
-    psOut.normal = (psIn.normal / 2.0f) + 0.5f;
     
     psOut.depth = psIn.depthInView;
   

@@ -8,7 +8,7 @@ namespace nsK2EngineLow
 		//初期化情報を作成する。
 		SpriteInitData motionBlurSpriteData;
 		//ブラー用のシェーダー。
-		motionBlurSpriteData.m_fxFilePath = "Assets/shader/ZoomBlur.fx";
+		motionBlurSpriteData.m_fxFilePath = "Assets/shader/MotionBlur.fx";
 		//頂点シェーダーのエントリーポイントを指定する。
 		motionBlurSpriteData.m_vsEntryPointFunc = "VSMain";
 		//ピクセルシェーダーのエントリーポイントを指定する。

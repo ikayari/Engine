@@ -52,7 +52,7 @@ Camera lightCamera;
         rc.WaitUntilFinishDrawingToRenderTarget(shadowMap);
         // 通常レンダリング
         // レンダリングターゲットをフレームバッファに戻す
-        rc.SetRenderTarget(
+       rc.SetRenderTarget(
             g_graphicsEngine->GetCurrentFrameBuffuerRTV(),
             g_graphicsEngine->GetCurrentFrameBuffuerDSV()
         );

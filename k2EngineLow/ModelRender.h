@@ -119,6 +119,10 @@ namespace nsK2EngineLow {
 		{
 			m_animation.Play(animNo, interpolateTime);
 		}
+		const bool& IsPlayingAnimation()const
+		{
+			return m_animation.IsPlaying();
+		}
 
 		/// <summary>
 		/// モデルを取得する。
@@ -136,8 +140,23 @@ namespace nsK2EngineLow {
 		{
 			m_animationSpeed = animationSpeed;
 		}
-
-
+		/// <summary>
+		/// ディザリング透過度
+		/// 1で完全に透過。
+		/// </summary>
+		/// <param name="clip">クリップ</param>
+		void SetClip(const float clip)
+		{
+			m_clip = clip;
+		}
+		const float& GetClip()const
+		{
+			return m_clip;
+		}
+		void AddAnimationEvent(AnimationEventListener eventListener)
+		{
+			m_animation.AddAnimationEventListener(eventListener);
+		}
 	private:
 		/// <summary>
 		/// スケルトンの初期化。
@@ -185,6 +204,11 @@ namespace nsK2EngineLow {
 				m_outlinemodelpe.Draw(rc);
 			}
 		}
+
+		bool IsOutLineModel()const
+		{
+			return m_isOutLineModel;
+		}
 		
 		Model					m_model;								//モデル。
 		Model					m_shadowmodel;							//シャドウモデル。
@@ -201,6 +225,8 @@ namespace nsK2EngineLow {
 		EnModelUpAxis			m_enFbxUpAxis = enModelUpAxisZ;			// FBXの上方向。
 		bool					m_isShadowCaster = true;				//シャドウを落とす？
 		bool					m_isOutLineModel = false;				//アウトライン描画モデル？
+
+		float m_clip = 0.0f;
 
 		ModelRenderCB m_modelCB = g_renderingEngine.GetModelRenderCB();
 

@@ -68,7 +68,7 @@ SPSIn VSMainCore(SVSIn vsIn,uniform bool hasSkin)
 	}else{
 		m = mWorld;
 	}
-    psIn.pos = mul(mWorld, vsIn.pos);
+    psIn.pos = mul(m, vsIn.pos);
     psIn.pos = mul(mView, psIn.pos);
     psIn.pos = mul(mProj, psIn.pos);
     return psIn;

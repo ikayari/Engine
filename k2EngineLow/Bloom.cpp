@@ -26,6 +26,7 @@ namespace nsK2EngineLow {
 		//モノクロ用のシェーダーを指定する。
 		spriteInitData.m_fxFilePath = "Assets/shader/sprite.fx";
 		//初期化オブジェクトを使って、スプライトを初期化する。
+		spriteInitData.m_alphaBlendMode = AlphaBlendMode_None;
 		
 		copyToFrameBufferSprite.Init(spriteInitData);
 	}
@@ -115,5 +116,6 @@ namespace nsK2EngineLow {
 		finalSprite.Draw(rc);
 		//レンダリングターゲットへの書き込み終了待ち。
 		rc.WaitUntilFinishDrawingToRenderTarget(rt);
+
 	}
 }

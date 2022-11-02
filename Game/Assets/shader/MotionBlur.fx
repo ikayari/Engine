@@ -40,7 +40,7 @@ PSInput VSMain(VSInput In)
 float4 PSMain(PSInput In) : SV_Target0
 {
     
-    float2 velocity = velocityMapTexture.Sample(g_sampler, In.uv).rg * 2.0f;
+    float2 velocity = velocityMapTexture.Sample(g_sampler, In.uv).rg * 20.0f;
     float2 velocitylength = velocity;
     float1 vellength =length(velocitylength);
     

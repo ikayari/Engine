@@ -5,6 +5,7 @@
 namespace nsK2EngineLow {
 	K2EngineLow* g_engine = nullptr;
 	GameTime* g_gameTime = nullptr;
+	//CollisionObjectManager g_collisionObjectManager;
 	
 
 	K2EngineLow::~K2EngineLow()
@@ -12,6 +13,7 @@ namespace nsK2EngineLow {
 		// グローバルなアクセスポイントにnullptrを代入。
 		g_graphicsEngine = nullptr;
 		g_gameTime = nullptr;
+		//g_collisionObjectManager = nullptr;
 	
 	
 		delete m_graphicsEngine;
@@ -45,6 +47,11 @@ namespace nsK2EngineLow {
 			//エフェクトエンジンの初期化。
 			EffectEngine::CreateInstance();
 		}
+		
+
+
+		
+		
 #ifdef K2_DEBUG
 		if (m_graphicsEngine) {
 			m_fpsFont = std::make_unique<Font>();

@@ -16,7 +16,7 @@ namespace nsK2EngineLow {
 
 		m_light.pointLight.SetPosition({ 0.0f,50.0f,50.0 });
 
-		m_light.pointLight.SetColor({ 15.0f,0.0f,0.0f });
+		m_light.pointLight.SetColor({ 0.0f,0.0f,0.0f });
 
 		m_light.pointLight.SetRange(0.0f);
 
@@ -27,9 +27,9 @@ namespace nsK2EngineLow {
 		dir = { 1.0f,-1.0f,1.0f };
 		m_light.spotLight.SetDirection(dir);
 
-		m_light.spotLight.SetRange(300.0f);
+		m_light.spotLight.SetRange(0.0f);
 
-		m_light.spotLight.SetAngle(Math::DegToRad(25.0f));
+		m_light.spotLight.SetAngle(Math::DegToRad(0.0f));
 	}
 
 

@@ -39,12 +39,10 @@ namespace nsK2EngineLow {
 		m_model.Draw(rc);
 
 		m_modelCB = g_renderingEngine.GetModelRenderCB();
-		m_modelCB.m_prevWorldMatrix = m_model.GetWorldMatrix();
-		m_modelCB.m_prevViewMatrix = g_camera3D->GetViewProjectionMatrix();
-		m_modelCB.m_prevProjectionMatrix = g_camera3D->GetProjectionMatrix();
+		m_modelCB.m_clip = m_clip;
 		if (m_isOutLineModel)
 		{
-			//m_outlinemodel.Draw(rc);
+			m_outlinemodel.Draw(rc);
 		}
 		g_renderingEngine.AddRenderObject(this);
 	}
@@ -54,9 +52,8 @@ namespace nsK2EngineLow {
 		initData.m_fxFilePath = "Assets/shader/OutLine.fx";
 		initData.m_cullMode = D3D12_CULL_MODE_FRONT;
 
-
 		m_modelCB = g_renderingEngine.GetModelRenderCB();
-
+		
 		//モデルの定数バッファ用の情報をモデルの初期化情報として渡す。
 		initData.m_expandConstantBuffer = &m_modelCB;
 		initData.m_expandConstantBufferSize = sizeof(m_modelCB);
@@ -78,7 +75,9 @@ namespace nsK2EngineLow {
 		m_enFbxUpAxis = modelUpAxis;
 		initData.m_modelUpAxis = m_enFbxUpAxis;
 		m_outlinemodel.Init(initData);
+		//initData.m_isDepthWrite = false;
 		initData.m_fxFilePath = "Assets/shader/OutLineModel.fx";
+
 		m_outlinemodelpe.Init(initData);
 	}
 	void ModelRender::Init(const char* filePath,
@@ -105,11 +104,9 @@ namespace nsK2EngineLow {
 		if (m_isOutLineModel)
 		{
 			initData.m_fxFilePath = "Assets/shader/faketoonshader.fx";
+			//initData.m_isDepthWrite = false;
 		}
 		m_modelCB = g_renderingEngine.GetModelRenderCB();
-		m_modelCB.m_prevWorldMatrix = m_model.GetWorldMatrix();
-		m_modelCB.m_prevViewMatrix = g_camera3D->GetViewProjectionMatrix();
-		m_modelCB.m_prevProjectionMatrix = g_camera3D->GetProjectionMatrix();
 		//モデルの定数バッファ用の情報をモデルの初期化情報として渡す。
 		initData.m_expandConstantBuffer = &m_modelCB;
 		initData.m_expandConstantBufferSize = sizeof(m_modelCB);
@@ -130,12 +127,9 @@ namespace nsK2EngineLow {
 
 		if (m_modelRenderID.recieveShadow) {
 			initData.m_psEntryPointFunc = "PSMainShadowReciever";
-			m_isShadowCaster = true;
+
 		}
-		else
-		{
-			m_isShadowCaster = true;
-		}
+		//initData.m_cullMode = D3D12_CULL_MODE_NONE;
 		//シャドウマップを拡張SRVに設定する。
 		initData.m_expandShaderResoruceView[0] = &g_renderingEngine.GetShadowMap();
 		initData.m_tkmFilePath = filePath;
@@ -180,10 +174,12 @@ namespace nsK2EngineLow {
 		ShadowModelInitData.m_fxFilePath = "Assets/shader/DrawShadowMap.fx";
 		ShadowModelInitData.m_tkmFilePath = tkmFilePath;
 		if (m_animationClip != nullptr) {
+
 			//スケルトンを指定する。
 			ShadowModelInitData.m_skeleton = &m_skeleton;
 			//スキンメッシュ用の頂点シェーダーのエントリーポイントを指定。
 			ShadowModelInitData.m_vsSkinEntryPointFunc = "VSSkinMain";
+			ShadowModelInitData.m_modelUpAxis = modelUpAxis;
 		}
 		else
 		{

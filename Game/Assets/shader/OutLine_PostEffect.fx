@@ -30,6 +30,7 @@ PSInput VSMain(VSInput In)
     psIn.uv = In.uv;
     return psIn;
 }
+Texture2D<float4> g_scenedepthTextuere : register(t0);//シーンの深度テクスチャ
 
 Texture2D<float4> g_depthTexture : register(t1); //深度値テクスチャ
 
@@ -66,14 +67,17 @@ float4 PSMain(PSInput psIn) : SV_Target0
         depth2 += g_depthTexture.Sample(g_sampler, psIn.uv + uvOffset[i]).x;
     }
     depth2 /= 8.0f;
-
+    float scenedepth = g_scenedepthTextuere.Sample(g_sampler, psIn.uv).r;
     // 自身の深度値と近傍8テクセルの深度値の差を調べる
-    if (abs(depth - depth2) > 0.5f)
+    if (abs(depth - depth2) > 0.015f&& psIn.pos.z > depth-0.01f)
     {
+        
         // 深度値が結構違う場合はピクセルカラーを黒にする
         // ->これがエッジカラーとなる
         return float4(0.0f, 0.0f, 0.0f, 1.0f);
     }
+   
+
     return float4(1.0f, 1.0f, 1.0f, 0.0f);
 
 }

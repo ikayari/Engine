@@ -11,13 +11,7 @@ namespace nsK2EngineLow
 		Light m_light;          // ライト
 		Matrix m_lvp; // ライトビュープロジェクション行列。
 		Vector3 m_playerPosition = { 0.0f,0.0f,0.0f };
-		float m_red;
-		Vector3 pad;
-		Matrix m_prevWorldMatrix;
-		Matrix m_prevViewMatrix;
-		Matrix m_prevProjectionMatrix;
-		
-
+		float m_clip=0.0f;
 	};
 	class RenderingEngine :public Noncopyable
 	{
@@ -38,11 +32,11 @@ namespace nsK2EngineLow
 
 		void SetRed(float n)
 		{
-			m_modelRenderCB.m_red = n;
+			m_modelRenderCB.m_clip = n;
 		}
 		const float GetRed()const
 		{
-			return m_modelRenderCB.m_red;
+			return m_modelRenderCB.m_clip;
 		}
 
 		void ShadowMapDraw(RenderContext& rc);
@@ -88,7 +82,7 @@ namespace nsK2EngineLow
 	private:
 		std::vector<IRenderer*> m_renderobject;
 		ShadowMapRender m_shadowMapRender;
-		PostEffect* m_postEffect = &g_postEffect;
+		PostEffect* m_postEffect;
 		ModelRenderCB m_modelRenderCB;
 		RenderTarget m_mainRenderTarget;
 		RenderTarget m_depthRenderTarget;

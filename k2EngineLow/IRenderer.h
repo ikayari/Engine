@@ -7,6 +7,10 @@ namespace nsK2EngineLow {
 	/// </summary>
 	class IRenderer : public Noncopyable {
 	public:
+		virtual void OnRenderOutLine(RenderContext& rc)
+		{
+
+		}
 		/// <summary>
 		/// シャドウマップへの描画パスから呼ばれる処理。
 		/// </summary>
@@ -44,6 +48,13 @@ namespace nsK2EngineLow {
 		virtual void OnRenderOutLineModel(RenderContext& rc)
 		{
 
+		}
+		/// <summary>
+		/// アウトライン描画用モデル？
+		/// </summary>
+		virtual bool IsOutLineModel() const
+		{
+			return false;
 		}
 		/// <summary>
 		/// シャドウキャスター？

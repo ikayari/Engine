@@ -88,6 +88,7 @@ using namespace Microsoft::WRL;
 #include "RenderingEngine.h"
 #include "SpringCamera.h"
 
+
 const UINT FRAME_BUFFER_W = 1600;	// フレームバッファの幅。
 const UINT FRAME_BUFFER_H = 900;	// フレームバッファの高さ。
 const UINT UI_SPACE_WIDTH = 1600;	// UI空間の幅。
@@ -108,9 +109,12 @@ static const int MAX_BONE = 512;	// ボーンの最大数。
 #include "physics/CharacterController.h"
 #include "physics/PhysicsStaticObject.h"
 #include "PhysicsStaticBox.h"
+#include "CollisionObject.h"
 
 #include "gameObject/GameObjectManager.h"
 #include "gameObject/IGameObject.h"
+
+
 
 #include <windows.h>
 #include <xaudio2.h>

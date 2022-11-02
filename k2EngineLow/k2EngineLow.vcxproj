@@ -255,6 +255,7 @@
     <ClCompile Include="AI\PathFinding\Path.cpp" />
     <ClCompile Include="AI\PathFinding\PathFinding.cpp" />
     <ClCompile Include="Bloom.cpp" />
+    <ClCompile Include="CollisionObject.cpp" />
     <ClCompile Include="DepthOfFirld.cpp" />
     <ClCompile Include="FontRender.cpp" />
     <ClCompile Include="gameObject\Gameobjectmanager.cpp" />
@@ -322,6 +323,7 @@
     <ClCompile Include="ModelRender.cpp" />
     <ClCompile Include="MotionBlur.cpp" />
     <ClCompile Include="online\SyncOnlineTwoPlayerMatchEngine.cpp" />
+    <ClCompile Include="OutLine.cpp" />
     <ClCompile Include="PhysicsStaticBox.cpp" />
     <ClCompile Include="physics\BoxCollider.cpp" />
     <ClCompile Include="physics\CapsuleCollider.cpp" />
@@ -356,6 +358,7 @@
     <ClInclude Include="AI\PathFinding\Path.h" />
     <ClInclude Include="AI\PathFinding\PathFinding.h" />
     <ClInclude Include="Bloom.h" />
+    <ClInclude Include="CollisionObject.h" />
     <ClInclude Include="dbg\MyAssert.h" />
     <ClInclude Include="dbg\MyLog.h" />
     <ClInclude Include="DepthOfFirld.h" />
@@ -430,6 +433,7 @@
     <ClInclude Include="ModelRender.h" />
     <ClInclude Include="MotionBlur.h" />
     <ClInclude Include="online\SyncOnlineTwoPlayerMatchEngine.h" />
+    <ClInclude Include="OutLine.h" />
     <ClInclude Include="PhysicsStaticBox.h" />
     <ClInclude Include="physics\BoxCollider.h" />
     <ClInclude Include="physics\CapsuleCollider.h" />

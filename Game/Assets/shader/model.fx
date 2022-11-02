@@ -57,7 +57,7 @@ cbuffer LightCb : register(b1)
     
     float3 targetPosition;
     
-    float red;
+    float clipratio;
 };
 
 ////////////////////////////////////////////////
@@ -129,6 +129,7 @@ Texture2D<float4> g_specularMap : register(t2);//スペキュラーマップ
 StructuredBuffer<float4x4> g_boneMatrix : register(t3); //ボーン行列。
 Texture2D<float4> g_shadowMap : register(t10); // シャドウマップ
 sampler g_sampler : register(s0); //サンプラステート。
+//ディザパターンの定義
 static const int pattern[4][4] =
 {
     { 0, 32, 8, 40 },
@@ -147,7 +148,7 @@ float3 GetNormal(float3 normal, float3 tangent, float3 biNormal, float2 uv)
     binSpaceNormal = (binSpaceNormal * 2.0f) - 1.0f;
 
     float3 newNormal = tangent * binSpaceNormal.x + biNormal * binSpaceNormal.y + normal * binSpaceNormal.z;
-
+    
     return newNormal;
 }
 
@@ -391,8 +392,8 @@ float3 CalcPhongSpecular(SPSIn psIn,float3 lightDirection, float3 lightColor,flo
 /// <param name="psIn">ピクセルシェーダーからの入力。</param>
 float3 CalcLigFromDirectionLight(SPSIn psIn,float3 albedoColor,float smooth,float metallic)
 {
-    /*
-    // ディレクションライトによるLambert拡散反射光を計算する
+    
+    /*// ディレクションライトによるLambert拡散反射光を計算する
     float3 diffDirection = CalcLambertDiffuse(directionLight.direction, directionLight.color, psIn.normal);
     float3 dir = directionLight.direction;
     dir.xz *= -1.0f;
@@ -403,14 +404,15 @@ float3 CalcLigFromDirectionLight(SPSIn psIn,float3 albedoColor,float smooth,floa
     float3 diffDirection=PBRdiffuse(psIn, directionLight.direction, directionLight.color, psIn.normal, albedoColor);
     float3 specDirection = PBRSpecular(psIn, directionLight.direction, directionLight.color, psIn.normal, smooth, metallic, albedoColor);
     
-   /* 
+    
     // ディレクションライトによるPhong鏡面反射光を計算する
-    float3 specDirection = CalcPhongSpecular(psIn,directionLight.direction, directionLight.color,psIn.normal);
-    specDirection += CalcPhongSpecular(psIn,dir, directionLight.color,psIn.normal);
-    */
+    //float3 specDirection = CalcPhongSpecular(psIn,directionLight.direction, directionLight.color,psIn.normal);
+    //specDirection += CalcPhongSpecular(psIn,dir, directionLight.color,psIn.normal);
+    
     //ディレクションライトによるリムライトを計算する。
-   //  float3 rimDirection = CalcRimLight(psIn, directionLight.direction, directionLight.color);
+    //float3 rimDirection = CalcRimLight(psIn, directionLight.direction, directionLight.color);
    
+    //return diffDirection + specDirection + rimDirection;
     return diffDirection * (1.0f - smooth) + specDirection;
 }
 /// <summary>
@@ -602,7 +604,7 @@ float4 PSMainCore(SPSIn psIn, uniform bool shadowreceive)
 
     // 金属度
     float metallic = g_specularMap.Sample(g_sampler, psIn.uv).r;
-    //metallic = 10.0f;
+    //metallic = 0.0f;
 
     // 滑らかさ
     float smooth = g_specularMap.Sample(g_sampler, psIn.uv).a;
@@ -650,7 +652,17 @@ float4 PSMainCore(SPSIn psIn, uniform bool shadowreceive)
                 + ambientLight;
 	
     
-    
+    // step-2 ディザパターンを利用してディザリングを実装する。
+    //このピクセルのスクリーン座標系でのX座標、Y座標を4で割った余りを求める。
+    int x = (int) fmod(psIn.pos.x, 4.0f);
+    int y = (int) fmod(psIn.pos.y, 4.0f);
+
+    //上で求めた、xとyを利用して、このピクセルのディザリング閾値を取得する。
+    int dither = pattern[y][x];
+
+    clip(dither - 64*clipratio);
+
+
     //lig += albedoColor.xyz;
 
     albedoColor.xyz *= lig;
@@ -658,17 +670,10 @@ float4 PSMainCore(SPSIn psIn, uniform bool shadowreceive)
     {
         albedoColor.xyz *= shadowMap;
     }
-    if (red < 0.75)
-    {
-        return albedoColor;
-    }
-    else
-    {
-        float4 Color = { albedoColor.z * red, albedoColor.xyw };
-        Color = Color + albedoColor;
-        Color /= 2;
-        return Color;
-    }
+    
+    return albedoColor;
+    
+  
 }
 // モデル用のピクセルシェーダーのエントリーポイント
 SPSOut PSMain(SPSIn psIn)
@@ -676,7 +681,6 @@ SPSOut PSMain(SPSIn psIn)
     SPSOut psOut;
 
     psOut.color = PSMainCore(psIn, false);
-
     psOut.depth = psIn.depthInView;
     
     float2 vel = psIn.posInProj.xy / psIn.posInProj.w - psIn.prevPosInProj.xy / psIn.prevPosInProj.w;

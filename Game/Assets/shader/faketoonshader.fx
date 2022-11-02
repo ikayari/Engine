@@ -56,7 +56,7 @@ cbuffer LightCb : register(b1)
     
     float3 targetPosition;
     
-    float red;
+    float clipratio;
 };
 
 
@@ -123,6 +123,15 @@ Texture2D<float4> g_specularMap : register(t2); //スペキュラーマップ
 StructuredBuffer<float4x4> g_boneMatrix : register(t3); //ボーン行列。
 Texture2D<float4> g_shadowMap : register(t10); // シャドウマップ
 sampler g_sampler : register(s0); //サンプラステート。
+
+//ディザパターンの定義
+static const int pattern[4][4] =
+{
+    { 0, 32, 8, 40 },
+    { 48, 16, 56, 24 },
+    { 12, 44, 4, 36 },
+    { 60, 28, 52, 20 },
+};
 
 ////////////////////////////////////////////////
 // 関数定義。
@@ -415,13 +424,12 @@ float3 CalcToonRatio(float3 lightDirection,float3 normal)
 {
     //ハーフランバート拡散照明によるライティング計算
 
-    float toon = dot(normal, lightDirection);
-
-    if(toon>=-0.3f)
+    float toon = max(0.0f,dot(normal, lightDirection) * -1.0f);
+    if(toon>=0.7f)
     {    
        return float3(1.0f,1.0f,1.0f);
     }
-    else if (toon >=-0.7f)
+    else if (toon >=0.5f)
     {
         return float3(0.6f, 0.6f, 0.6f);
     }
@@ -433,6 +441,17 @@ float3 CalcToonRatio(float3 lightDirection,float3 normal)
 // モデル用のピクセルシェーダーのエントリーポイント
 float4 PSMainCore(SPSIn psIn,uniform bool shadowreceive) : SV_Target0
 {
+        // step-2 ディザパターンを利用してディザリングを実装する。
+    //このピクセルのスクリーン座標系でのX座標、Y座標を4で割った余りを求める。
+    int x = (int) fmod(psIn.pos.x, 4.0f);
+    int y = (int) fmod(psIn.pos.y, 4.0f);
+
+    //上で求めた、xとyを利用して、このピクセルのディザリング閾値を取得する。
+    int dither = pattern[y][x];
+
+    clip(dither - 64 * clipratio);
+
+
     psIn.normal = normalize(GetNormal(psIn.normal, psIn.tangent, psIn.biNormal, psIn.uv));
         //ディレクションライトによるライティングを計算する
     float3 directionLig = CalcLigFromDirectionLight(psIn);

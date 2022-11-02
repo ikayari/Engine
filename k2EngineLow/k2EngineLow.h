@@ -8,6 +8,7 @@
 #include "graphics/Shader.h"
 #include "time/FPSLimitter.h"
 
+
 namespace nsK2EngineLow {
 	class GraphicsEngine;
 	class GameTime;
@@ -209,6 +210,7 @@ namespace nsK2EngineLow {
 		std::unique_ptr<Font> m_fpsFontShadow;
 #endif
 		GraphicsEngine* m_graphicsEngine = nullptr;		// グラフィックエンジン。
+		//CollisionObjectManager m_collisionObjectManager;
 		TResourceBank<TkmFile> m_tkmFileBank;			// tkmファイルバンク。
 		TResourceBank<Shader> m_shaderBank;				// シェーダーバンク
 		TResourceBank<Texture>	m_textureBank;			// テクスチャバンク。
@@ -225,6 +227,7 @@ namespace nsK2EngineLow {
 
 	extern K2EngineLow* g_engine;	// 低レベルK2エンジン。
 	extern GameTime* g_gameTime;
+	//extern CollisionObjectManager g_collisionObjectManager;
 	
 }
 

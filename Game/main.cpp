@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "system/system.h"
 #include "Game.h"
+#include "Slow.h"
 
 // K2EngineLowのグローバルアクセスポイント。
 K2EngineLow* g_k2EngineLow = nullptr;
@@ -22,21 +23,25 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	g_renderingEngine.Init();
 	g_postEffect.Init();
+	CollisionObjectManager collisionObjectManager;
+	g_collisionObjectManager = &collisionObjectManager;
 	
 
-
+	NewGO<Slow>(0, "slow");
 	NewGO<Game>(0, "game");
+	auto& renderContext = g_graphicsEngine->GetRenderContext();
 
 	// ここからゲームループ。
 	while (DispatchWindowMessage())
 	{
-		auto& renderContext = g_graphicsEngine->GetRenderContext();
-
+		
 		// フレームの開始時に呼び出す必要がある処理を実行
 		g_k2EngineLow->BeginFrame();
 
 		// ゲームオブジェクトマネージャーの更新処理を呼び出す。
 		g_k2EngineLow->ExecuteUpdate();
+
+		//g_engine->ExecuteRender();
 
 		g_renderingEngine.Execute(renderContext);
 

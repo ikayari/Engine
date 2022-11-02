@@ -27,36 +27,60 @@ namespace nsK2EngineLow
 		m_modelRenderCB.m_lvp = GetLightCamera().GetViewProjectionMatrix();
 		// ゲームオブジェクトマネージャーの描画処理を呼び出す。
 		
-		
+
 		
 		DrawModelAndDepth(rc);
 		ShadowMapDraw(rc);
-		DrawOutLine(rc);
-		
-		EffectEngine::GetInstance()->Draw();
-		m_postEffect->Render(rc);
 
+		EffectEngine::GetInstance()->Draw();
+
+		m_postEffect->Render(rc);
+		DrawOutLine(rc);
+
+		SpriteInitData luminanceSpriteInitData;
+
+		luminanceSpriteInitData.m_fxFilePath = "Assets/shader/OutLine_PostEffect.fx";
+
+		luminanceSpriteInitData.m_vsEntryPointFunc = "VSMain";
+
+		luminanceSpriteInitData.m_psEntryPoinFunc = "PSMain";
+
+		luminanceSpriteInitData.m_width = 1600;
+		luminanceSpriteInitData.m_height = 900;
+
+		luminanceSpriteInitData.m_textures[0] = &g_renderingEngine.GetDepthRenderTarget().GetRenderTargetTexture();
+		luminanceSpriteInitData.m_textures[1] = &g_renderingEngine.GetdepthOutLineRenderTarget().GetRenderTargetTexture();
+		//描き込むレンダリングターゲットのフォーマットを指定する。
+		luminanceSpriteInitData.m_colorBufferFormat[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+		//作成した初期化情報をもとにスプライトを初期化する。
+		luminanceSpriteInitData.m_alphaBlendMode = AlphaBlendMode_Multiply;
+		Sprite sprite;
+		sprite.Init(luminanceSpriteInitData);
+		sprite.Draw(rc);
 		Render2DDraw(rc);
+
 		m_renderobject.clear();
 	}
 	void RenderingEngine::DrawOutLine(RenderContext& rc)
 	{
-
-		RenderTarget* rts[] = {
-			&g_renderingEngine.GetnormalRenderTarget(),
-			&g_renderingEngine.GetdepthOutLineRenderTarget()
-		};
 		//レンダリングターゲットとして利用できるまで待つ
-		rc.WaitUntilToPossibleSetRenderTargets(2, rts);
-		//レンダリングターゲットを設定。
-		rc.SetRenderTargetsAndViewport(2, rts);
-		// レンダリングターゲットをクリア
-		rc.ClearRenderTargetViews(2, rts);
-		for (auto& renderObj : m_renderobject) {
+		rc.SetRenderTarget(
+			g_renderingEngine.GetdepthOutLineRenderTarget().GetRTVCpuDescriptorHandle(),
+			g_renderingEngine.GetmainRenderTarget().GetDSVCpuDescriptorHandle()
+		);
+		rc.ClearRenderTargetView(g_renderingEngine.GetdepthOutLineRenderTarget());
+			for (auto& renderObj : m_renderobject) {
 			renderObj->OnRenderOutLineModel(rc);
 		}
-		// レンダリングターゲットへの書き込み終了待ち
-		rc.WaitUntilFinishDrawingToRenderTargets(2, rts);
+		rc.WaitUntilFinishDrawingToRenderTarget(g_renderingEngine.GetdepthOutLineRenderTarget());
+		// 通常レンダリング
+		// レンダリングターゲットをフレームバッファに戻す
+		rc.SetRenderTarget(
+			g_graphicsEngine->GetCurrentFrameBuffuerRTV(),
+			g_graphicsEngine->GetCurrentFrameBuffuerDSV()
+		);
+		rc.SetViewportAndScissor(g_graphicsEngine->GetFrameBufferViewport());
 
 	}
 	void RenderingEngine::DrawModelAndDepth(RenderContext& rc)
@@ -78,6 +102,7 @@ namespace nsK2EngineLow
 		g_engine->ExecuteRender();
 		// レンダリングターゲットへの書き込み終了待ち
 		rc.WaitUntilFinishDrawingToRenderTargets(3, rts);
+	
 	}
 	void RenderingEngine::Init()
 	{

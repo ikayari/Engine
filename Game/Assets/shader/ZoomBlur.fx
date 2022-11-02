@@ -54,7 +54,7 @@ float4 PSMain(PSInput In) : SV_Target0
     
     //clip(length(posFromCenter) - 10.0f);
     float2 posFromCenterNomal = normalize(posFromCenter);
-    float2 BlurScale = posFromCenterNomal * velocity*25.0f;
+    float2 BlurScale = posFromCenterNomal * velocity;
     
 
     float uvStepAdd = 0.1f;

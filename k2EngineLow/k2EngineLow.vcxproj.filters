@@ -256,6 +256,10 @@
     </ClCompile>
     <ClCompile Include="DepthOfFirld.cpp" />
     <ClCompile Include="MotionBlur.cpp" />
+    <ClCompile Include="OutLine.cpp" />
+    <ClCompile Include="CollisionObject.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="k2EngineLowPreCompile.h" />
@@ -562,6 +566,10 @@
     </ClInclude>
     <ClInclude Include="DepthOfFirld.h" />
     <ClInclude Include="MotionBlur.h" />
+    <ClInclude Include="OutLine.h" />
+    <ClInclude Include="CollisionObject.h">
+      <Filter>collision</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
@@ -620,6 +628,9 @@
     </Filter>
     <Filter Include="AI\PathFinding">
       <UniqueIdentifier>{72d94fe6-e599-4523-8e54-81df808c96fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="collision">
+      <UniqueIdentifier>{1e9965d9-788a-4b23-924a-ed85b3d8e698}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
