@@ -55,6 +55,8 @@ float4 PSSamplingLuminance(PSInput In) : SV_Target0
     if (isinf(t) || isnan(t))
     {
         discard;
+        
+        return float4(500.0f, 0.0f, 0.0f, 1.0f); //discard;
     };
 
     return color;

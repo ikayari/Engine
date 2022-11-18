@@ -2,7 +2,7 @@
 #include "Game.h"
 #include "Slow.h"
 #include "Cannon.h"
-
+#include "ShootEnemy.h"
 
 
 Game::~Game()
@@ -12,6 +12,8 @@ Game::~Game()
 
 bool Game::Start()
 {
+
+
 	m_backGround.SetRecieveShadow(true);
 	//m_backGround.SetOutLineDraw(true);
 	m_backGround.Init("Assets/modelData/Stage/Stage.tkm");
@@ -40,12 +42,12 @@ bool Game::Start()
 
 	m_slow = FindGO<Slow>("slow");
 	
-	m_cannon = NewGO<Cannon>(0, "cannon");
-	m_cannon->SetPosition({ 0.0f, 0.0f,500.0f });
+	m_shootEnemy = NewGO<ShootEnemy>(0, "shootEnemy");
+	m_shootEnemy->SetPosition({ 0.0f, 80.0f,500.0f });
 	Quaternion rot;
 	rot.AddRotationDegY(360.0f);
-	m_cannon->SetRotation(rot);
-	m_cannon->SetScale(Vector3::One * 4.0f);
+	m_shootEnemy->SetRotation(rot);
+	m_shootEnemy->SetScale(Vector3::One * 4.0f);
 	return true;
 }
 
@@ -63,6 +65,19 @@ void Game::Update()
 		m_slow->EndSlowMotion();
 	}
 	*/
+	
+	float a = g_pad[0]->GetLStickXF();
+	wchar_t wcsbuf[256];
+	swprintf_s(wcsbuf, 256, L"%f", a);
+
+	//表示するテキストを設定。
+	font.SetText(wcsbuf);
+	//フォントの位置を設定。
+	font.SetPosition(Vector3(200.0f, 200.0f, 0.0f));
+	//フォントの大きさを設定。
+	font.SetScale(2.0f);
+	//フォントの色を設定。
+	font.SetColor({ 1.0f,0.0f,0.0f,1.0f });
 	hogehoge.AddRotationDegY(10.0f);
 	hogehoge.Apply(hoge);
 	hoge.Normalize();
@@ -73,6 +88,6 @@ void Game::Render(RenderContext& rc)
 	//SkyCube.Draw(rc);
 
 	m_backGround.Draw(rc);
-	//m_box.Draw(rc);
-
+	m_box.Draw(rc);
+	font.Draw(rc);
 }

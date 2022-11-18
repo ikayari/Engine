@@ -4,7 +4,7 @@
 #include "GameCamera.h"
 
 class Slow;
-class Cannon;
+class ShootEnemy;
 class Game : public IGameObject
 {
 public:
@@ -33,7 +33,7 @@ private:
 
 	Player* m_player;
 	Player* hogeho;
-	Cannon* m_cannon;
+	ShootEnemy* m_shootEnemy;
 	GameCamera* m_gameCamera;
 
 	Slow* m_slow;
@@ -41,5 +41,7 @@ private:
 	PhysicsGhostObject m_PGO;
 	CollisionObject* m_CO;
 
+	EffectEmitter* m_effectEmitter;
+	FontRender font;
 };
 

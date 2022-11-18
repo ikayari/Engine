@@ -1,4 +1,5 @@
 #pragma once
+
 class Slow;
 class CannonBall:public IGameObject
 {
@@ -31,5 +32,6 @@ private:
 	CollisionObject* m_CO;
 	Slow* m_slow;
 	float m_scaleRatio = 1.0f;
+	EffectEmitter* m_effectEmitter = nullptr;              //EffectEmitterÅB
 };
 

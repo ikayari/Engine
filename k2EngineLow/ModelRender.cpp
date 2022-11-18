@@ -108,6 +108,7 @@ namespace nsK2EngineLow {
 		}
 		m_modelCB = g_renderingEngine.GetModelRenderCB();
 		//モデルの定数バッファ用の情報をモデルの初期化情報として渡す。
+
 		initData.m_expandConstantBuffer = &m_modelCB;
 		initData.m_expandConstantBufferSize = sizeof(m_modelCB);
 		if (animationClips == nullptr)

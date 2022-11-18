@@ -343,7 +343,7 @@ void Player::PlayAnimation()
 }
 void Player::PlayAttackAnimation(int num)
 {
-	m_modelRender.SetAnimationSpeed(2.5f*m_slow->GetSlowRatio());
+	m_modelRender.SetAnimationSpeed(3.5f*m_slow->GetSlowRatio());
 	m_modelRender.PlayAnimation(enAnimationClip_Attack1+num, 0.3f);
 }
 void Player::Move()
@@ -457,6 +457,10 @@ void Player::ProcessDadgeStateTransition()
 }
 void Player::ProcessAttackStateTransition()
 {
+	if (g_pad[0]->IsPress(enButtonB))
+	{
+		m_playerState = enPlayerState_Run;
+	}
 	if (m_attackWait)
 	{
 		if (g_pad[0]->IsTrigger(enButtonRB1) && m_AttackNum <= 3 && m_nextAttack == false)
@@ -483,16 +487,14 @@ void Player::ProcessAttackStateTransition()
 }
 void Player::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName)
 {
-	//キーの名前が「attack_start」の時。
 	if (wcscmp(eventName, L"slow_Start") == 0)
 	{
-		m_slow->StartSlowMotion();
+		m_slow->StartSlowMotion(0.3f);
 	}
-	//キーの名前が「attack_end」のとき
 	if (wcscmp(eventName, L"slow_Stop") == 0)
 	{
 		//攻撃を終わる。
-		m_slow->EndSlowMotion();
+		//m_slow->EndSlowMotion();
 	}
 	if (wcscmp(eventName, L"AfterImage_FadeOut") == 0)
 	{

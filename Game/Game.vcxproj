@@ -225,11 +225,14 @@
   <ItemGroup>
     <ClCompile Include="Cannon.cpp" />
     <ClCompile Include="CannonBall.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="ShootEnemy.cpp" />
     <ClCompile Include="Slow.cpp" />
+    <ClCompile Include="Sound.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -240,10 +243,13 @@
   <ItemGroup>
     <ClInclude Include="Cannon.h" />
     <ClInclude Include="CannonBall.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameCamera.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="ShootEnemy.h" />
     <ClInclude Include="Slow.h" />
+    <ClInclude Include="Sound.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="system\system.h" />
   </ItemGroup>

@@ -93,10 +93,9 @@ struct SPSIn
     float3 normalInView : TEXCOORD2; //カメラ空間の法線
     float4 posInLVP : TEXCOORD3; // ライトビュースクリーン空間でのピクセルの座標1
     float depthInView : TEXCOORD4;
-    //float4 velocityMap : TEXCOORD5;
     float4 prevPosInProj : TEXCOORD5;
-    float4 posInProj : TEXCOORD6;
-    float3 toEye : TEXCOORD7; //    
+    float4 posInProj : TEXCOORD6;  
+    float3 toEye : TEXCOORD7; //   
 };
 
 struct SPSOut
@@ -109,13 +108,13 @@ struct SPSOut
 ///////////////////////////////////////////
 // 関数宣言
 ///////////////////////////////////////////
-float3 PBRdiffuse(SPSIn psIn, float3 lightDirection, float3 lightColor, float3 normal, float4 albedoColor);
-float3 PBRSpecular(SPSIn psIn, float3 lightDirection, float3 lightColor, float3 normal, float smooth, float metallic, float3 specColor);
+float3 PBRdiffuse(float3 toEye, float3 lightDirection, float3 lightColor, float3 normal, float3 albedoColor);
+float3 PBRSpecular(float3 toEye, float3 lightDirection, float3 lightColor, float3 normal, float smooth, float metallic, float3 specColor);
 
 float3 CalcLambertDiffuse(float3 lightDirection, float3 lightColor, float3 normal);
 float3 CalcPhongSpecular(SPSIn psIn,float3 lightDirection, float3 lightColor,float3 normal);
 float3 CalcLigFromPointLight(SPSIn psIn);
-float3 CalcLigFromDirectionLight(SPSIn psIn, float3 albedoColor, float smooth, float metallic);
+float3 CalcLigFromDirectionLight(float3 toEye, float3 albedoColor, float smooth, float metallic, float3 normal);
 float3 CalcLigFromSpotLight(SPSIn psIn);
 float3 CalcRimLight(SPSIn psIn, float3 lightdirection, float3 lightcolor);
 float4 DrawVelocityMap(SVSIn vsIn, SPSIn psIn);
@@ -275,7 +274,6 @@ SPSIn VSMainCore(SVSIn vsIn, uniform bool hasSkin)
     {
         m = mWorld;
     }
-   // psIn.velocityMap = DrawVelocityMap(vsIn, psIn);
     // step-4 接ベクトルと従ベクトルをワールド空間に変換する
     psIn.tangent = normalize(mul(m, vsIn.tangent));
     psIn.biNormal = normalize(mul(m, vsIn.biNormal));
@@ -335,25 +333,26 @@ float3 CalcLambertDiffuse(float3 lightDirection, float3 lightColor, float3 norma
     return lightColor * t;
 }
 //物理ベースレンダリングをもとにした拡散反射光の計算
-float3 PBRdiffuse(SPSIn psIn, float3 lightDirection, float3 lightColor, float3 normal,float3 albedoColor)
+float3 PBRdiffuse(float3 toEye, float3 lightDirection, float3 lightColor, float3 normal,float3 albedoColor)
 {
      // フレネル反射を考慮した拡散反射を計算
     float diffuseFromFresnel = CalcDiffuseFromFresnel(
-            normal, -lightDirection, psIn.toEye);
+            normal, -lightDirection, toEye);
 
         // 正規化Lambert拡散反射を求める
     float NdotL = saturate(dot(normal, -lightDirection));
     float3 lambertDiffuse = lightColor * NdotL / PI;
 
         // 最終的な拡散反射光を計算する
-    float3 diffuse = albedoColor* lambertDiffuse*diffuseFromFresnel;
+    float3 diffuse = albedoColor * diffuseFromFresnel*lambertDiffuse;
     return diffuse;
 }
+
 //物理ベースレンダリングをもとにした鏡面反射光の計算
-float3 PBRSpecular(SPSIn psIn, float3 lightDirection, float3 lightColor, float3 normal, float smooth, float metallic, float3 specColor)
+float3 PBRSpecular(float3 toEye, float3 lightDirection, float3 lightColor, float3 normal, float smooth, float metallic, float3 specColor)
 {
     float3 spec = CookTorranceSpecular(
-            -lightDirection, psIn.toEye, normal, smooth)
+            -lightDirection, toEye, normal, smooth)
             * lightColor;
 
         // 金属度が高ければ、鏡面反射はスペキュラカラー、低ければ白
@@ -390,7 +389,7 @@ float3 CalcPhongSpecular(SPSIn psIn,float3 lightDirection, float3 lightColor,flo
 /// ディレクションライトによる反射光を計算
 /// </summary
 /// <param name="psIn">ピクセルシェーダーからの入力。</param>
-float3 CalcLigFromDirectionLight(SPSIn psIn,float3 albedoColor,float smooth,float metallic)
+float3 CalcLigFromDirectionLight(float3 toEye, float3 albedoColor, float smooth, float metallic, float3 normal)
 {
     
     /*// ディレクションライトによるLambert拡散反射光を計算する
@@ -401,8 +400,8 @@ float3 CalcLigFromDirectionLight(SPSIn psIn,float3 albedoColor,float smooth,floa
     */
     
     //PBR
-    float3 diffDirection=PBRdiffuse(psIn, directionLight.direction, directionLight.color, psIn.normal, albedoColor);
-    float3 specDirection = PBRSpecular(psIn, directionLight.direction, directionLight.color, psIn.normal, smooth, metallic, albedoColor);
+    float3 diffDirection=PBRdiffuse(toEye, directionLight.direction, directionLight.color, normal, albedoColor);
+    float3 specDirection = PBRSpecular(toEye, directionLight.direction, directionLight.color, normal, smooth, metallic, albedoColor);
     
     
     // ディレクションライトによるPhong鏡面反射光を計算する
@@ -595,7 +594,10 @@ float4 PSMainCore(SPSIn psIn, uniform bool shadowreceive)
     
     psIn.normal = normalize(GetNormal(psIn.normal, psIn.tangent, psIn.biNormal, psIn.uv));
     
-        // step-2 各種マップをサンプリングする
+    float3 toEye = eyePos - psIn.worldPos;
+    toEye = normalize(toEye);
+    
+    // step-2 各種マップをサンプリングする
     // アルベドカラー（拡散反射光）
     float4 albedoColor = g_albedo.Sample(g_sampler, psIn.uv);
 
@@ -612,13 +614,13 @@ float4 PSMainCore(SPSIn psIn, uniform bool shadowreceive)
     
     
     //ディレクションライトによるライティングを計算する
-    float3 directionLig = CalcLigFromDirectionLight(psIn,albedoColor.xyz,smooth,metallic);
-	
-    // ポイントライトによるライティングを計算する
-    float3 pointLig = CalcLigFromPointLight(psIn);
+    float3 directionLig = CalcLigFromDirectionLight(toEye,albedoColor.xyz,smooth,metallic,psIn.normal);
 
-    //スポットライトによるライティングを計算する。
-    float3 spotLig = CalcLigFromSpotLight(psIn);
+    //// ポイントライトによるライティングを計算する
+    //float3 pointLig = CalcLigFromPointLight(psIn);
+
+    ////スポットライトによるライティングを計算する。
+    //float3 spotLig = CalcLigFromSpotLight(psIn);
    
     // step-6 ライトビュースクリーン空間からUV空間に座標変換
     // 【注目】ライトビュースクリーン空間からUV座標空間に変換している
@@ -647,8 +649,8 @@ float4 PSMainCore(SPSIn psIn, uniform bool shadowreceive)
    
 	//ライティングの結果をすべて加算する。
     float3 lig = directionLig
-                + pointLig
-                + spotLig
+                //+ pointLig
+                //+ spotLig
                 + ambientLight;
 	
     
