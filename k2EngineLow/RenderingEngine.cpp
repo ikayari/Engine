@@ -26,8 +26,7 @@ namespace nsK2EngineLow
 		m_modelRenderCB.m_light = g_sceneLight.GetLight();
 		m_modelRenderCB.m_lvp = GetLightCamera().GetViewProjectionMatrix();
 		// ゲームオブジェクトマネージャーの描画処理を呼び出す。
-		
-
+		m_fade->Update();
 		
 		DrawModelAndDepth(rc);
 		EffectEngine::GetInstance()->Draw();
@@ -61,6 +60,7 @@ namespace nsK2EngineLow
 		sprite.Draw(rc);
 		Render2DDraw(rc);
 
+		m_fade->Render(rc);
 		m_renderobject.clear();
 	}
 	void RenderingEngine::DrawOutLine(RenderContext& rc)
@@ -111,6 +111,7 @@ namespace nsK2EngineLow
 		m_shadowMapRender.Init();
 		m_modelRenderCB.m_light = g_sceneLight.GetLight();
 		m_modelRenderCB.m_lvp = GetLightCamera().GetViewProjectionMatrix();
+		m_fade = &g_fade;
 		//RenderTarget::Create()を利用して、レンダリングターゲットを作成する。
 		m_mainRenderTarget.Create(
 			1600,												//テクスチャの幅。

@@ -257,6 +257,7 @@
     <ClCompile Include="Bloom.cpp" />
     <ClCompile Include="CollisionObject.cpp" />
     <ClCompile Include="DepthOfFirld.cpp" />
+    <ClCompile Include="Fade.cpp" />
     <ClCompile Include="FontRender.cpp" />
     <ClCompile Include="gameObject\Gameobjectmanager.cpp" />
     <ClCompile Include="gameObject\IGameObject.cpp" />
@@ -362,6 +363,7 @@
     <ClInclude Include="dbg\MyAssert.h" />
     <ClInclude Include="dbg\MyLog.h" />
     <ClInclude Include="DepthOfFirld.h" />
+    <ClInclude Include="Fade.h" />
     <ClInclude Include="FontRender.h" />
     <ClInclude Include="gameObject\GameObjectManager.h" />
     <ClInclude Include="gameObject\IGameobject.h" />

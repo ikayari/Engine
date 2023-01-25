@@ -3,6 +3,9 @@
 #include "Game.h"
 #include "Slow.h"
 #include "Sound.h"
+#include "EffectManage.h"
+#include "Title.h"
+#include "Result.h"
 
 // K2EngineLowのグローバルアクセスポイント。
 K2EngineLow* g_k2EngineLow = nullptr;
@@ -24,12 +27,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	g_renderingEngine.Init();
 	g_postEffect.Init();
+	g_fade.Init();
 	CollisionObjectManager collisionObjectManager;
 	g_collisionObjectManager = &collisionObjectManager;
 	
 	NewGO<Sound>(0, "sound");
+	NewGO<EffectManage>(0, "effectManage");
 	NewGO<Slow>(0, "slow");
-	NewGO<Game>(0, "game");
+	NewGO<Title>(0, "title");
 	auto& renderContext = g_graphicsEngine->GetRenderContext();
 
 	// ここからゲームループ。

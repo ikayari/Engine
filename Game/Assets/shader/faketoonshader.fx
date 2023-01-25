@@ -230,13 +230,15 @@ SPSIn VSSkinMain( SVSIn vsIn )
 float3 CalcLambertDiffuse(float3 lightDirection, float3 lightColor, float3 normal)
 {
     // ピクセルの法線とライトの方向の内積を計算する
-    float t = dot(normal, lightDirection) * -1.0f;
+    float t = saturate(dot(normal, -lightDirection));
 
     // 内積の値を0以上の値にする
-    t = max(0.0f, t);
-
+    //t = max(0.0f, t);
+    float3 diffuse = lightColor * t;
+    
+    diffuse /= 3.1415926f;
     // 拡散反射光を計算する
-    return lightColor * t;
+    return diffuse;
 }
 
 /// <summary>
@@ -489,10 +491,10 @@ float4 PSMainCore(SPSIn psIn,uniform bool shadowreceive) : SV_Target0
     float3 toon=CalcToonRatio(directionLight.direction,psIn.normal);
     float4 color = g_albedo.Sample(g_sampler, psIn.uv);
 	//ライティングの結果をすべて加算する。
-    float3 lig =  directionLig
+    float3 lig = directionLig
                 + pointLig
-                + spotLig
-                + ambientLight;
+                + spotLig;
+                //+ ambientLight;
 	
     
 	float4 albedoColor = g_albedo.Sample(g_sampler, psIn.uv);

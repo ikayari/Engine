@@ -137,10 +137,10 @@ namespace nsK2EngineLow {
 
 			// 入力量を正規化する。
 			float t = sqrtf(m_lStickX * m_lStickX + m_lStickY * m_lStickY);
-		/*	if (t > 0.001f) {
+			if (t > 1.0f) {
 				m_lStickX /= t;
 				m_lStickY /= t;
-			}*/
+			}
 		}
 
 		if ((xInputState.Gamepad.sThumbRX < INPUT_DEADZONE &&
@@ -168,11 +168,11 @@ namespace nsK2EngineLow {
 				m_rStickY = static_cast<float>(xInputState.Gamepad.sThumbRY) / -SHRT_MIN;
 			}
 			// 入力量を正規化する。
-			/*float t = sqrtf(m_rStickX * m_rStickX + m_rStickY * m_rStickY);
-			if (t > 0.001f) {
+			float t = sqrtf(m_rStickX * m_rStickX + m_rStickY * m_rStickY);
+			if (t > 1.0f) {
 				m_rStickX /= t;
 				m_rStickY /= t;
-			}*/
+			}
 		}
 	}
 	void GamePad::Update(const XINPUT_STATE& xInputState)
@@ -234,10 +234,10 @@ namespace nsK2EngineLow {
 			}
 			//スティックの入力量を正規化。
 			float t = fabsf(m_rStickX) + fabsf(m_rStickY);
-			//if (t > 0.0f) {
-			//	m_rStickX /= t;
-			//	m_rStickY /= t;
-			//}
+			if (t > 0.0f) {
+				m_rStickX /= t;
+				m_rStickY /= t;
+			}
 
 			if (GetAsyncKeyState('A')) {
 				m_lStickX = -1.0f;
@@ -253,10 +253,10 @@ namespace nsK2EngineLow {
 			}
 			//スティックの入力量を正規化。
 			t = fabsf(m_lStickX) + fabsf(m_lStickY);
-			/*if (t > 0.0f) {
+			if (t > 0.0f) {
 				m_lStickX /= t;
 				m_lStickY /= t;
-			}*/
+			}
 
 			for (const VirtualPadToKeyboard& vPadToKeyboard : vPadToKeyboardTable) {
 				if (GetAsyncKeyState(vPadToKeyboard.keyCoord1)) {

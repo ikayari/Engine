@@ -3,9 +3,10 @@
 #include "Slow.h"
 #include "CannonBall.h"
 #include "Sound.h"
+#include "Player.h"
 bool ShootEnemy::Start()
 {
-
+	m_player = FindGO<Player>("player");
 	m_sound = FindGO<Sound>("sound");
 	m_modelRender.Init("Assets/modelData/ShootEnemy/ShootEnemy.tkm");
 
@@ -21,8 +22,13 @@ bool ShootEnemy::Start()
 	m_slow = FindGO<Slow>("slow");
     return true;
 }
-
 void ShootEnemy::Update()
+{
+	Rotation();
+	Attack();
+	Collision();
+}
+void ShootEnemy::Attack()
 {
 	m_timer += g_gameTime->GetFrameDeltaTime() * m_slow->GetSlowRatio();
 	if (m_timer >= 2.0f)
@@ -36,6 +42,9 @@ void ShootEnemy::Update()
 		m_sound->PlaySE(1, 0.05f);
 		m_timer = 0.0f;
 	}
+}
+void ShootEnemy::Collision()
+{
 	if (m_NoDamage)
 	{
 		m_NoDamageTimer += g_gameTime->GetFrameDeltaTime() * m_slow->GetSlowRatio();
@@ -71,6 +80,18 @@ void ShootEnemy::Update()
 
 		}
 	}
+}
+
+void ShootEnemy::Rotation()
+{
+	Vector3 direction;
+	direction = m_player->GetPosition()-m_position;
+	direction.Normalize();
+	m_rotation.SetRotationYFromDirectionXZ(direction);
+	m_forward = Vector3::AxisZ;
+	m_rotation.Apply(m_forward);
+	m_modelRender.SetRotation(m_rotation);
+	m_modelRender.Update();
 }
 
 void ShootEnemy::Render(RenderContext& rc)

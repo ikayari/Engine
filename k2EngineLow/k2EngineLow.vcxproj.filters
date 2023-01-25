@@ -260,6 +260,7 @@
     <ClCompile Include="CollisionObject.cpp">
       <Filter>collision</Filter>
     </ClCompile>
+    <ClCompile Include="Fade.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="k2EngineLowPreCompile.h" />
@@ -570,6 +571,7 @@
     <ClInclude Include="CollisionObject.h">
       <Filter>collision</Filter>
     </ClInclude>
+    <ClInclude Include="Fade.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">

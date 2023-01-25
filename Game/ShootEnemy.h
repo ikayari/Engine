@@ -2,12 +2,19 @@
 #include "Enemy.h"
 class Slow;
 class Sound;
+class Player;
 class ShootEnemy:public Enemy
 {
 public:
 	bool Start();
 	void Update();
 	void Render(RenderContext& rc);
+
+	void Attack();
+
+	void Collision();
+
+	void Rotation();
 	/// <summary>
 	/// 座標をセット。
 	/// </summary>
@@ -74,6 +81,7 @@ private:
 
 	ModelRender m_modelRender;
 
+	Player* m_player;
 
 	Slow* m_slow;
 

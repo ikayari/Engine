@@ -31,8 +31,7 @@ bool CannonBall::Start()
 	m_CO->SetName("Enemy_Attack");
 	m_CO->SetIsEnableAutoDelete(false);
 	m_slow = FindGO<Slow>("slow");
-	//エフェクトを読み込む。
-	EffectEngine::GetInstance()->ResistEffect(0, u"Assets/efk/ball2.efk");
+	
 	//エフェクトのオブジェクトを作成する。
 	m_effectEmitter = NewGO<EffectEmitter>(0);
 	m_effectEmitter->Init(0);

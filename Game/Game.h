@@ -3,8 +3,10 @@
 #include <physics/PhysicsGhostObject.h>
 #include "GameCamera.h"
 
+class EffectManage;
 class Slow;
 class ShootEnemy;
+class Spider;
 class Game : public IGameObject
 {
 public:
@@ -19,6 +21,10 @@ public:
 	////////////////////////////////////
 	// ÉÅÉìÉoïœêîÇ∆Ç©
 	////////////////////////////////////
+	void subEnemy()
+	{
+		EnemyCount--;
+	};
 private:
 	ModelRender		m_modelRender;
 	ModelRender		m_modelRender2;
@@ -35,13 +41,27 @@ private:
 	Player* hogeho;
 	ShootEnemy* m_shootEnemy;
 	GameCamera* m_gameCamera;
+	Spider* m_spider;
+	Spider* m_spider1;
+	Spider* m_spider2;
+	Spider* m_spider3;
 
 	Slow* m_slow;
+	EffectManage* m_Effect;
 
 	PhysicsGhostObject m_PGO;
 	CollisionObject* m_CO;
 
 	EffectEmitter* m_effectEmitter;
 	FontRender font;
+
+	LevelRender					m_levelRender;
+	LevelRender					m_levelRender2;
+
+
+	int EnemyCount = 0;
+
+	int m_wave = 0;
+	bool m_isWaitFadeout;
 };
 

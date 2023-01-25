@@ -1,5 +1,6 @@
 #pragma once
 class Slow;
+class EffectManage;
 class Player :public IGameObject
 {
 public:
@@ -28,6 +29,18 @@ public:
 	const CharacterController& GetCharacterController()const 
 	{
 		return m_charaCon;
+	}
+	void SetPosition(Vector3& pos)
+	{
+		m_position = pos;
+	}
+	void SetRotation(Quaternion& rot)
+	{
+		m_rotation = rot;
+	}
+	void SetScale(Vector3& scale)
+	{
+		m_scale = scale;
 	}
 private:
 	/// <summary>
@@ -130,7 +143,9 @@ private:
 	bool m_nextAttack = false;
 	//bool m_doAttack = false;
 	bool m_attack = false;
+	bool m_attackgo= false;
 
+	float m_hp = 3;
 	enum EnAfterImageState {
 		enState_FadeIn,			//フェードイン中。
 		enState_FadeOut,		//フェードアウト中。
@@ -141,6 +156,8 @@ private:
 	CharacterController m_charaCon;
 
 	Slow* m_slow;
+
+	EffectManage* m_effect;
 	//アニメーションクリップ	
 	enum EnAnimationClip {
 		enAnimationClip_Idle,				//待機アニメーション。	
@@ -151,19 +168,28 @@ private:
 		enAnimationClip_Attack3,			//攻撃アニメーション3。
 		enAnimationClip_Attack4,			//攻撃アニメーション4。
 		enAnimationClip_Attack5,			//攻撃アニメーション5。
+		enAnimationClip_DadgeAttack,		//回避攻撃
 		enAnimationClip_Dadge,				//回避アニメーション。
 		enAnimationClip_Damage,				//被ダメージアニメーション。
-		//enAnimationClip_Down,				//ダウンアニメーション。
+		enAnimationClip_Down,				//ダウンアニメーション。
 		enAnimationClip_Num,				//アニメーションの数。
 	};
+	public:
 	enum EnPlayerState {
 		enPlayerState_Idle,					//待機。
 		enPlayerState_Walk,					//歩き。
 		enPlayerState_Run,					//走る。
 		enPlayerState_ReceiveDamage,		//ダメ―ジ受けた。
 		enPlayerState_Attack,				//攻撃ステート
-		enPlayerState_Dadge					//HPが0。		
+		enPlayerState_Dadge,				//回避
+		enPlayerState_Down					//死
 	};
+
+	const EnPlayerState& GetPlayerState()const
+	{
+		return m_playerState;
+	}
+	private:
 	EnPlayerState m_playerState = enPlayerState_Idle;			//プレイヤーステート。
 	AnimationClip m_animationClips[enAnimationClip_Num];		//アニメーションクリップ。
 };

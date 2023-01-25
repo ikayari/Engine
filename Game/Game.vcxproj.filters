@@ -10,6 +10,9 @@
     <Filter Include="Sound">
       <UniqueIdentifier>{f930d111-89f5-48a3-a365-673c7e2b7a53}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Effect">
+      <UniqueIdentifier>{9c07c575-99f0-4937-901c-cc0c8b3ba18e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -34,6 +37,14 @@
     <ClCompile Include="Sound.cpp">
       <Filter>Sound</Filter>
     </ClCompile>
+    <ClCompile Include="Spider.cpp">
+      <Filter>Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectManage.cpp">
+      <Filter>Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Title.cpp" />
+    <ClCompile Include="Result.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -57,5 +68,13 @@
     <ClInclude Include="Sound.h">
       <Filter>Sound</Filter>
     </ClInclude>
+    <ClInclude Include="Spider.h">
+      <Filter>Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectManage.h">
+      <Filter>Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Title.h" />
+    <ClInclude Include="Result.h" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Player.h"
 #include "Slow.h"
+#include "EffectManage.h"
+
 namespace
 {
 	const float ZANZOU_SPACE = 75.0f;
@@ -30,19 +32,20 @@ bool Player::Start()
 	m_animationClips[enAnimationClip_Attack4].SetLoopFlag(false);
 	m_animationClips[enAnimationClip_Attack5].Load("Assets/animData/Player/fifth.tka");
 	m_animationClips[enAnimationClip_Attack5].SetLoopFlag(false);
+	m_animationClips[enAnimationClip_DadgeAttack].Load("Assets/animData/Player/dadgeAttack.tka");
+	m_animationClips[enAnimationClip_DadgeAttack].SetLoopFlag(false);
+	m_animationClips[enAnimationClip_Down].Load("Assets/animData/Player/down.tka");
+	m_animationClips[enAnimationClip_Down].SetLoopFlag(false);
 		
 
 	m_modelRender.SetCasterShadow(true);
 	m_modelRender.SetOutLineDraw(true);
 	//m_modelRender.SetCasterShadow(false);
-	m_modelRender.Init("Assets/modelData/Player/player.tkm",m_animationClips, enAnimationClip_Num);
-	//アニメーションイベント用の関数
-	m_modelRender.AddAnimationEvent([&](const wchar_t* clipName, const wchar_t* eventName) {
-		OnAnimationEvent(clipName, eventName);
-		});
 
-	m_scale = Vector3::One * 1.5f;
+
+	//m_scale = Vector3::One * 1.5f;
 	m_modelRender.SetScale(m_scale);
+	m_modelRender.SetPosition(m_position);
 	m_modelRender.SetRotation(m_rotation);
 	m_modelRender.Update();
 
@@ -54,18 +57,24 @@ bool Player::Start()
 	m_zanzou1.SetClip(m_clipRate);
 	m_zanzou1.SetCasterShadow(false);
 	m_zanzou1.Update();
+
+
 	m_zanzou2.Init("Assets/modelData/Player/player.tkm", m_animationClips, enAnimationClip_Num);
 	m_zanzou2.SetScale(m_scale);
 	m_zanzou2.SetRotation(m_rotation);
 	m_zanzou2.SetClip(m_clipRate);
 	m_zanzou2.SetCasterShadow(false);
 	m_zanzou2.Update();
+
+
 	m_zanzou3.Init("Assets/modelData/Player/player.tkm", m_animationClips, enAnimationClip_Num);
 	m_zanzou3.SetScale(m_scale);
 	m_zanzou3.SetRotation(m_rotation);
 	m_zanzou3.SetClip(m_clipRate);
 	m_zanzou3.SetCasterShadow(false);
 	m_zanzou3.Update();
+
+
 	m_zanzou4.Init("Assets/modelData/Player/player.tkm", m_animationClips, enAnimationClip_Num);
 	m_zanzou4.SetScale(m_scale);
 	m_zanzou4.SetRotation(m_rotation);
@@ -73,7 +82,14 @@ bool Player::Start()
 	m_zanzou4.SetCasterShadow(false);
 	m_zanzou4.Update();
 
+	m_modelRender.Init("Assets/modelData/Player/player.tkm", m_animationClips, enAnimationClip_Num);
+	//アニメーションイベント用の関数
+	m_modelRender.AddAnimationEvent([&](const wchar_t* clipName, const wchar_t* eventName) {
+		OnAnimationEvent(clipName, eventName);
+		});
+
 	m_slow = FindGO<Slow>("slow");
+	m_effect = FindGO<EffectManage>("effectManage");
 	//m_position.y += 150.0f;
 	m_charaCon.Init(20.0f, 60.0f, m_position);
 	m_charaCon.SetPosition(m_position);
@@ -187,6 +203,8 @@ void Player::ManageState()
 		ProcessAttackStateTransition();
 		SetMoveSpeed(50.0f);
 		break;
+	case enPlayerState_Down:
+		break;
 	default:
 		break;
 
@@ -292,17 +310,17 @@ void Player::PlayAnimation()
 		break;
 
 	case enPlayerState_ReceiveDamage:
-		m_modelRender.SetAnimationSpeed(4.0f);
+		m_modelRender.SetAnimationSpeed(4.0f * m_slow->GetSlowRatio() / 2.0f);
 		m_modelRender.PlayAnimation(enAnimationClip_Damage, 0.05f);
 
 
-		m_zanzou1.SetAnimationSpeed(4.0f);
+		m_zanzou1.SetAnimationSpeed(4.0f*m_slow->GetSlowRatio() / 2.0f);
 		m_zanzou1.PlayAnimation(enAnimationClip_Damage, 0.2f);
-		m_zanzou2.SetAnimationSpeed(4.0f);
+		m_zanzou2.SetAnimationSpeed(4.0f * m_slow->GetSlowRatio() / 2.0f);
 		m_zanzou2.PlayAnimation(enAnimationClip_Damage, 0.2f);
-		m_zanzou3.SetAnimationSpeed(4.0f);
+		m_zanzou3.SetAnimationSpeed(4.0f * m_slow->GetSlowRatio() / 2.0f);
 		m_zanzou3.PlayAnimation(enAnimationClip_Damage, 0.2f);
-		m_zanzou4.SetAnimationSpeed(4.0f);
+		m_zanzou4.SetAnimationSpeed(4.0f * m_slow->GetSlowRatio() / 2.0f);
 		m_zanzou4.PlayAnimation(enAnimationClip_Damage, 0.2f);
 		break;
 	case enPlayerState_Dadge:
@@ -336,6 +354,9 @@ void Player::PlayAnimation()
 					
 		PlayAttackAnimation(m_AttackNum);
 		break;
+	case enPlayerState_Down:
+		m_modelRender.SetAnimationSpeed(4.0f * m_slow->GetSlowRatio() / 2.0f);
+		m_modelRender.PlayAnimation(enAnimationClip_Down);
 	default:
 		break;
 	}
@@ -348,7 +369,10 @@ void Player::PlayAttackAnimation(int num)
 }
 void Player::Move()
 {
-	
+	if (m_playerState == enPlayerState_Down)
+	{
+		return;
+	}
 	//xzの移動速度を0.0fにする。
 	m_moveSpeed.x = 0.0f;
 	m_moveSpeed.z = 0.0f;
@@ -392,6 +416,7 @@ void Player::Rotation()
 	if (fabsf(m_moveSpeed.x) >= 0.001f || fabsf(m_moveSpeed.z) >= 0.001f)
 	{
 		//回転を作成
+
 		m_rotation.SetRotationYFromDirectionXZ(m_moveSpeed);
 		//回転を適用
 		m_modelRender.SetRotation(m_rotation);
@@ -416,6 +441,22 @@ void Player::Collision()
 				else
 				{
 					m_playerState = enPlayerState_ReceiveDamage;
+					Vector3 y = Vector3::AxisY * 80.0f;
+
+					m_effect->PlayEffect(1, m_position + y, Vector3::One * 10.0f);
+					
+					if (m_hp <= 0)
+					{
+						m_playerState = enPlayerState_Down;
+						m_slow->StartSlowMotion(1.0f);
+					}
+					else
+					{
+						m_hp--;
+						m_slow->StartSlowMotion(0.5f);
+					}
+
+					
 				}
 			}
 		}
@@ -453,6 +494,16 @@ void Player::ProcessDadgeStateTransition()
 		ProcessCommonStateTransition();
 		m_modelRender.SetOutLineDraw(true);
 		m_modelRender.SetClip(0.0f);
+	}
+	else if (g_pad[0]->IsTrigger(enButtonRB1))
+	{
+		m_playerState = enPlayerState_Attack;
+		//ステートを遷移する。
+		m_modelRender.SetOutLineDraw(true);
+		m_modelRender.SetClip(0.0f);
+		m_AttackNum = 5;
+		AfterImageFadeOut();
+		
 	}
 }
 void Player::ProcessAttackStateTransition()
@@ -510,6 +561,7 @@ void Player::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName)
 	{
 		//攻撃判定生成
 		m_attack = true;
+
 	}
 	if (wcscmp(eventName, L"Attack_End") == 0)
 	{
@@ -536,9 +588,9 @@ void Player::Attack()
 		auto collision = NewGO<CollisionObject>(0);
 		Vector3 Z = Vector3::AxisZ;
 		m_rotation.Apply(Z);
-		Vector3 pos = m_position+Z*50.0f;
+		Vector3 pos = m_position+Z*45.0f;
 		pos.y += 60.0f;
-		collision->CreateBox(pos, m_rotation, { 40.0f,120.0f,60.0f });
+		collision->CreateBox(pos, m_rotation, { 80.0f,120.0f,60.0f });
 		collision->SetName("Player_Attack");
 	}
 }

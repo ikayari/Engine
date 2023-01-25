@@ -2,6 +2,7 @@
 #include "SceneLight.h"
 #include "ShadowMapRender.h"
 #include "PostEffect.h"
+#include "Fade.h"
 
 namespace nsK2EngineLow
 {
@@ -89,6 +90,7 @@ namespace nsK2EngineLow
 		RenderTarget m_depthOutLineRenderTarget;
 		RenderTarget m_velocityRenderTarget;
 		RenderTarget m_normalRenderTarget;
+		Fade*		 m_fade;
 	};
 	
 	extern RenderingEngine g_renderingEngine;
