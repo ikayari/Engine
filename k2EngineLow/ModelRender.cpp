@@ -42,7 +42,7 @@ namespace nsK2EngineLow {
 		m_modelCB.m_clip = m_clip;
 		if (m_isOutLineModel)
 		{
-			m_outlinemodel.Draw(rc);
+			m_outlinemodel.Draw(rc);			
 		}
 		g_renderingEngine.AddRenderObject(this);
 	}
@@ -129,6 +129,11 @@ namespace nsK2EngineLow {
 		if (m_modelRenderID.recieveShadow) {
 			initData.m_psEntryPointFunc = "PSMainShadowReciever";
 
+		}
+
+		if (m_modelRenderID.NoNormalMap)
+		{
+			initData.m_psEntryPointFunc = "PSMainShadowRecieverNoNormalMap";
 		}
 		//initData.m_cullMode = D3D12_CULL_MODE_NONE;
 		//シャドウマップを拡張SRVに設定する。

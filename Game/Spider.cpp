@@ -4,6 +4,7 @@
 #include "Sound.h"
 #include "Player.h"
 #include "EffectManage.h"
+#include "EnemyUI.h"
 #include <Game.h>
 
 bool Spider::Start()
@@ -40,11 +41,19 @@ bool Spider::Start()
 	m_rotation.Apply(m_forward);
 	m_forward.Normalize();
 	m_slow = FindGO<Slow>("slow");
+	m_UI = NewGO<EnemyUI>(0, "enemyUI");
+	m_UI->SetPlayer(m_player);
+	m_UI->SetMaxHP(m_HP);
+	m_UI->SetNowHP(m_HP);
 	return true;
+}
+Spider::~Spider()
+{
+	DeleteGO(m_UI);
 }
 void Spider::Rotation()
 {
-	if (m_spiderState == enSpider_Attack || m_spiderState == enSpider_Down)
+	if (m_spiderState == enSpider_Attack || m_spiderState == enSpider_Down||m_spiderState== enSpider_Damage)
 	{
 		return;
 	}
@@ -53,11 +62,37 @@ void Spider::Rotation()
 	diff = m_player->GetPosition() - m_position;
 	diff.Normalize();
 	m_rotation.SetRotationYFromDirectionXZ(diff);
+	m_rotation.Apply(m_forward);
+	m_forward.Normalize();
 	m_modelRender.SetRotation(m_rotation);
 	m_modelRender.Update();
 }
 void Spider::Update()
 {
+	if (m_MovieMode)
+	{
+		m_UI->DisableUI();
+		if (m_gravity)
+		{
+
+			if (m_charaCon.IsOnGround())
+			{
+				m_gravitySpeed.y = 0.0f;
+			}
+			else
+			{
+				m_gravitySpeed.y -= 15.0f;
+			}
+			m_position=m_charaCon.Execute(m_gravitySpeed, g_gameTime->GetFrameDeltaTime());
+		}
+		m_modelRender.SetTRS(m_position, m_rotation, m_scale);
+		m_modelRender.Update();
+
+		return;
+	}
+	m_UI->EnableUI();
+	m_UI->SetEnemyPosition(m_position);
+	m_UI->SetNowHP(m_HP);
 	Collision();
 	ManageState();
 	PlayAnimation();
@@ -71,7 +106,10 @@ void Spider::Update()
 
 void Spider::Render(RenderContext& rc)
 {
-	m_modelRender.Draw(rc);
+	if(m_modelDraw)
+	{
+		m_modelRender.Draw(rc);
+	}
 }
 void Spider::Collision()
 {
@@ -110,6 +148,7 @@ void Spider::Collision()
 				}
 				else
 				{
+					m_HP = 0;
 					Vector3 y = Vector3::AxisY * 60.0f;
 					m_effect->PlayEffect(1, m_position + y, Vector3::One * 20.0f);
 					m_slow->StartSlowMotion(0.2f);
@@ -134,7 +173,7 @@ void Spider::ManageState()
 	case enSpider_Damage:
 		//ダメージステートのステート遷移処理。
 		ProcessDamageStateTransition();
-		MoveChara(-20.0f);
+		MoveChara(-50.0f);
 		break;
 	case enSpider_Attack:
 		ProcessAttackStateTransition();
@@ -153,7 +192,7 @@ void Spider::ManageState()
 	}
 }
 
-void Spider::ProcessComonStateTransition()
+void Spider::ProcessCommonStateTransition()
 {
 	if (m_player->GetPlayerState() == m_player->enPlayerState_Down)
 	{
@@ -161,7 +200,7 @@ void Spider::ProcessComonStateTransition()
 	}
 	Vector3 playerPosition = m_player->GetPosition();
 	Vector3 diff = playerPosition - m_position;
-	if (diff.Length() >= 1500.0f)
+	if (diff.Length() >= 4000.0f)
 	{
 		m_spiderState = enSpider_Idle;
 	}
@@ -177,13 +216,13 @@ void Spider::ProcessComonStateTransition()
 
 void Spider::ProcessIdleStateTransition()
 {
-	ProcessComonStateTransition();
+	ProcessCommonStateTransition();
 }
 void Spider::ProcessDamageStateTransition()
 {
 	if (!m_modelRender.IsPlayingAnimation())
 	{
-		ProcessComonStateTransition();
+		ProcessCommonStateTransition();
 	}
 }
 void Spider::ProcessDownStateTransition()
@@ -202,13 +241,13 @@ void Spider::ProcessDownStateTransition()
 }
 void Spider::ProcessWalkStateTransition()
 {
-	ProcessComonStateTransition();
+	ProcessCommonStateTransition();
 }
 void Spider::ProcessAttackStateTransition()
 {
 	if (!m_modelRender.IsPlayingAnimation())
 	{
-		ProcessComonStateTransition();
+		ProcessCommonStateTransition();
 		m_spiderState = enSpider_Idle;
 	}
 }

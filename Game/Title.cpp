@@ -1,24 +1,22 @@
 #include "stdafx.h"
 #include "Title.h"
 #include "Game.h"
+#include "Sound.h"
 
 
 bool Title::Start()
 {
+	
 	g_fade.StartFadeIn();
 	sprite.Init("Assets/sprite/Title/title.dds", 1600, 900);
-	/*g_soundEngine->ResistWaveFileBank(100, "Assets/sound/BGM/You_and_Me.wav");
-	g_soundEngine->ResistWaveFileBank(250, "Assets/sound/SE/kettei.wav");
-	m_bgm = NewGO<SoundSource>(0);
-	m_bgm->Init(100);
-	m_bgm->Play(true);
-	m_bgm->SetVolume(0.1f);*/
-
+		
+	m_sound = FindGO<Sound>("sound");
+	m_sound->PlayBGM(101,0.5f);
 	return true;
 }
 Title::~Title()
 {
-	//DeleteGO(m_bgm);
+	
 }
 void Title::Update()
 {
@@ -34,6 +32,7 @@ void Title::Update()
 		//Aƒ{ƒ^ƒ“‚ð‰Ÿ‚µ‚½‚çB
 		if (g_pad[0]->IsTrigger(enButtonA)) {
 			m_isWaitFadeout = true;
+			g_fade.SetFadeImage(enFadeImage_Loading);
 			g_fade.StartFadeOut();
 		}
 	}

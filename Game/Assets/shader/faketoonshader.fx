@@ -429,13 +429,13 @@ float3 CalcToonRatio(float3 lightDirection,float3 normal)
     float toon = max(0.0f,dot(normal, lightDirection) * -1.0f);
     if(toon>=0.7f)
     {    
-       return float3(1.0f,1.0f,1.0f);
+       return float3(1.1f,1.1f,1.1f);
     }
     else if (toon >=0.5f)
     {
-        return float3(0.6f, 0.6f, 0.6f);
+        return float3(0.8f, 0.8f, 0.8f);
     }
-    return float3(0.4f, 0.4f, 0.4f);
+    return float3(0.6f, 0.6f, 0.6f);
 
 
 }

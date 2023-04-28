@@ -2,6 +2,7 @@
 #include "sound/SoundEngine.h"
 #include "sound/SoundSource.h"
 
+class Sound;
 class Game;
 
 class Title :public IGameObject
@@ -17,7 +18,7 @@ public:
 
 private:
 	SpriteRender sprite;
-	SoundSource* m_bgm = nullptr;
+	Sound* m_sound;
 	Game* m_game = nullptr;
 	bool m_isWaitFadeout = false;
 };

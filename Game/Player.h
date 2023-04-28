@@ -1,6 +1,7 @@
 #pragma once
 class Slow;
 class EffectManage;
+class PlayerUI;
 class Player :public IGameObject
 {
 public:
@@ -42,6 +43,15 @@ public:
 	{
 		m_scale = scale;
 	}
+	void EnableMovieMode()
+	{
+		m_MovieMode = true;
+	}
+	void DisableMovieMode()
+	{
+		m_MovieMode = false;
+	}
+
 private:
 	/// <summary>
 	/// 当たり判定処理
@@ -76,9 +86,13 @@ private:
 	/// </summary>
 	void ProcessDadgeStateTransition();
 	/// <summary>
-	/// 回避ステートの遷移
+	/// 攻撃ステートの遷移
 	/// </summary>
 	void ProcessAttackStateTransition();
+	/// <summary>
+	/// ステップステートの遷移
+	/// </summary>
+	void ProcessStepStateTransition();
 	/// <summary>
 	/// アニメーションの再生
 	/// </summary>
@@ -131,6 +145,7 @@ private:
 	Quaternion m_rot;
 	Vector3 m_scale;
 	Vector3 m_moveSpeed;
+	Vector3 m_forward = Vector3::AxisZ;
 	float m_moveSpeedRatio=330.0f;
 	bool m_dadge=false;
 	float m_dadgeGauge;
@@ -145,6 +160,8 @@ private:
 	bool m_attack = false;
 	bool m_attackgo= false;
 
+	bool m_MovieMode = false;
+
 	float m_hp = 3;
 	enum EnAfterImageState {
 		enState_FadeIn,			//フェードイン中。
@@ -154,7 +171,7 @@ private:
 	EnAfterImageState			m_state = enState_Idle;		//状態。
 
 	CharacterController m_charaCon;
-
+	PlayerUI* m_playerHP;
 	Slow* m_slow;
 
 	EffectManage* m_effect;
@@ -163,6 +180,7 @@ private:
 		enAnimationClip_Idle,				//待機アニメーション。	
 		enAnimationClip_Walk,				//歩きアニメーション。
 		enAnimationClip_Run,				//走りアニメーション。
+		enAnimationClip_Step,				//ステップアニメーション。
 		enAnimationClip_Attack1,			//攻撃アニメーション1。
 		enAnimationClip_Attack2,			//攻撃アニメーション2。
 		enAnimationClip_Attack3,			//攻撃アニメーション3。
@@ -179,6 +197,7 @@ private:
 		enPlayerState_Idle,					//待機。
 		enPlayerState_Walk,					//歩き。
 		enPlayerState_Run,					//走る。
+		enPlayerState_Step,					//ステップ。
 		enPlayerState_ReceiveDamage,		//ダメ―ジ受けた。
 		enPlayerState_Attack,				//攻撃ステート
 		enPlayerState_Dadge,				//回避

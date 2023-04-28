@@ -10,7 +10,7 @@ namespace nsK2EngineLow {
 
 
         // シャドウマップ描画用のレンダリングターゲットを作成する
-        float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float clearColor[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
         shadowMap.Create(
             1024,
             1024,
@@ -34,8 +34,6 @@ Camera lightCamera;
         m_lightCamera.SetTarget(g_camera3D->GetTarget());
         //【注目】上方向を設定。今回はライトが真下を向いているので、X方向を上にしている。
         m_lightCamera.SetUp(1, 0, 0);
-        //今回のサンプルでは画角を狭めにしておく。
-        //m_lightCamera.SetViewAngle(Math::DegToRad(20.0f));
         //ライトビュープロジェクション行列を計算している。
         m_lightCamera.Update();
 
@@ -46,7 +44,7 @@ Camera lightCamera;
 
         for (auto& model : renderObjects)
         {
-            model->OnRenderShadowMap(rc, m_lightCamera.GetViewProjectionMatrix());
+            //model->OnRenderShadowMap(rc, m_lightCamera.GetViewProjectionMatrix());
         }
 
         rc.WaitUntilFinishDrawingToRenderTarget(shadowMap);

@@ -45,7 +45,7 @@ cbuffer ModelCb : register(b0)
 
 cbuffer LightCb : register(b1)
 {
-    DirectionLight directionLight;
+    DirectionLight directionLight[4];
     PointLight pointLight;
     SpotLight spotLight;
     //アンビエントライト。
@@ -114,7 +114,8 @@ float3 PBRSpecular(float3 toEye, float3 lightDirection, float3 lightColor, float
 float3 CalcLambertDiffuse(float3 lightDirection, float3 lightColor, float3 normal);
 float3 CalcPhongSpecular(SPSIn psIn,float3 lightDirection, float3 lightColor,float3 normal);
 float3 CalcLigFromPointLight(SPSIn psIn);
-float3 CalcLigFromDirectionLight(float3 toEye, float3 albedoColor, float smooth, float metallic, float3 normal);
+float3 CalcLigFromDirectionLight(float3 toEye, float3 albedoColor, float smooth, float metallic, float3 normal, int LigNum);
+float3 CalcNoPBRDirectionLight(SPSIn psIn, int ligNo);
 float3 CalcLigFromSpotLight(SPSIn psIn);
 float3 CalcRimLight(SPSIn psIn, float3 lightdirection, float3 lightcolor);
 float4 DrawVelocityMap(SVSIn vsIn, SPSIn psIn);
@@ -389,30 +390,30 @@ float3 CalcPhongSpecular(SPSIn psIn,float3 lightDirection, float3 lightColor,flo
 /// ディレクションライトによる反射光を計算
 /// </summary
 /// <param name="psIn">ピクセルシェーダーからの入力。</param>
-float3 CalcLigFromDirectionLight(float3 toEye, float3 albedoColor, float smooth, float metallic, float3 normal)
+float3 CalcLigFromDirectionLight(float3 toEye, float3 albedoColor, float smooth, float metallic, float3 normal,int LigNum)
 {
-    
-    /*// ディレクションライトによるLambert拡散反射光を計算する
-    float3 diffDirection = CalcLambertDiffuse(directionLight.direction, directionLight.color, psIn.normal);
-    float3 dir = directionLight.direction;
+    float3 diffDirection = PBRdiffuse(toEye, directionLight[LigNum].direction, directionLight[LigNum].color, normal, albedoColor);
+    float3 specDirection = PBRSpecular(toEye, directionLight[LigNum].direction, directionLight[LigNum].color, normal, smooth, metallic, albedoColor);
+        
+    return diffDirection * (1.0f - smooth) + specDirection;
+}
+float3 CalcNoPBRDirectionLight(SPSIn psIn,int ligNo)
+{
+        // ディレクションライトによるLambert拡散反射光を計算する
+    float3 diffDirection = CalcLambertDiffuse(directionLight[ligNo].direction, directionLight[ligNo].color, psIn.normal);
+    float3 dir = directionLight[ligNo].direction;
     dir.xz *= -1.0f;
-    diffDirection += CalcLambertDiffuse(dir, directionLight.color, psIn.normal);
-    */
+    diffDirection += CalcLambertDiffuse(dir, directionLight[ligNo].color, psIn.normal);
     
-    //PBR
-    float3 diffDirection=PBRdiffuse(toEye, directionLight.direction, directionLight.color, normal, albedoColor);
-    float3 specDirection = PBRSpecular(toEye, directionLight.direction, directionLight.color, normal, smooth, metallic, albedoColor);
-    
-    
-    // ディレクションライトによるPhong鏡面反射光を計算する
-    //float3 specDirection = CalcPhongSpecular(psIn,directionLight.direction, directionLight.color,psIn.normal);
-    //specDirection += CalcPhongSpecular(psIn,dir, directionLight.color,psIn.normal);
+    //ディレクションライトによるPhong鏡面反射光を計算する
+
+    float3 specDirection = CalcPhongSpecular(psIn, directionLight[ligNo].direction, directionLight[ligNo].color, psIn.normal);
+    specDirection += CalcPhongSpecular(psIn, dir, directionLight[ligNo].color, psIn.normal);
     
     //ディレクションライトによるリムライトを計算する。
-    //float3 rimDirection = CalcRimLight(psIn, directionLight.direction, directionLight.color);
+    float3 rimDirection = CalcRimLight(psIn, directionLight[ligNo].direction, directionLight[ligNo].color);
    
-    //return diffDirection + specDirection + rimDirection;
-    return diffDirection * (1.0f - smooth) + specDirection;
+    return diffDirection + specDirection + rimDirection;
 }
 /// <summary>
 /// ポイントライトによる反射光を計算
@@ -589,18 +590,22 @@ float4 DrawVelocityMap(SVSIn vsIn, SPSIn psIn)
 /// <summary>
 /// ピクセルシェーダーのエントリー関数。
 /// </summary>
-float4 PSMainCore(SPSIn psIn, uniform bool shadowreceive)
+float4 PSMainCore(SPSIn psIn, uniform bool shadowreceive, uniform bool hasNormalMap)
 {
     
-    psIn.normal = normalize(GetNormal(psIn.normal, psIn.tangent, psIn.biNormal, psIn.uv));
-    
+    if (hasNormalMap)
+    {
+        psIn.normal = normalize(GetNormal(psIn.normal, psIn.tangent, psIn.biNormal, psIn.uv));
+    }
+      
+     
     float3 toEye = eyePos - psIn.worldPos;
     toEye = normalize(toEye);
     
     // step-2 各種マップをサンプリングする
     // アルベドカラー（拡散反射光）
     float4 albedoColor = g_albedo.Sample(g_sampler, psIn.uv);
-
+    //return albedoColor;
     // スペキュラカラーはアルベドカラーと同じにする
     float3 specColor = albedoColor;
 
@@ -612,10 +617,15 @@ float4 PSMainCore(SPSIn psIn, uniform bool shadowreceive)
     float smooth = g_specularMap.Sample(g_sampler, psIn.uv).a;
     //smooth = 1.0f;
     
-    
-    //ディレクションライトによるライティングを計算する
-    float3 directionLig = CalcLigFromDirectionLight(toEye,albedoColor.xyz,smooth,metallic,psIn.normal);
-
+    float3 lig;
+    for (int ligNo = 0; ligNo < 4; ligNo++)
+    {
+        //ディレクションライトによるライティングを計算する
+        float3 directionLig = CalcLigFromDirectionLight(toEye, albedoColor.xyz, smooth, metallic, psIn.normal, ligNo);
+        lig += directionLig;
+        //float3 directionLig = CalcNoPBRDirectionLight(psIn,ligNo);
+        //lig += directionLig;
+    }
     //// ポイントライトによるライティングを計算する
     //float3 pointLig = CalcLigFromPointLight(psIn);
 
@@ -639,7 +649,7 @@ float4 PSMainCore(SPSIn psIn, uniform bool shadowreceive)
         // step-3 シャドウマップに描き込まれているZ値と比較する
         // 計算したUV座標を使って、シャドウマップから深度値をサンプリング
         float zInShadowMap = g_shadowMap.Sample(g_sampler, shadowMapUV).r;
-        if (zInLVP > zInShadowMap+0.0001)
+        if (zInLVP > zInShadowMap + 0.0001)
         {
             // 遮蔽されている
             shadowMap.xyz *= 0.5f;
@@ -648,8 +658,7 @@ float4 PSMainCore(SPSIn psIn, uniform bool shadowreceive)
    
    
 	//ライティングの結果をすべて加算する。
-    float3 lig = directionLig
-                //+ pointLig
+    lig +=      //+ pointLig
                 //+ spotLig
                 + ambientLight;
 	
@@ -670,7 +679,7 @@ float4 PSMainCore(SPSIn psIn, uniform bool shadowreceive)
     albedoColor.xyz *= lig;
     if (shadowreceive == true)
     {
-        albedoColor.xyz *= shadowMap;
+        //albedoColor.xyz *= shadowMap;
     }
     
     return albedoColor;
@@ -682,7 +691,7 @@ SPSOut PSMain(SPSIn psIn)
 {
     SPSOut psOut;
 
-    psOut.color = PSMainCore(psIn, false);
+    psOut.color = PSMainCore(psIn, false, true);
     psOut.depth = psIn.depthInView;
     
     float2 vel = psIn.posInProj.xy / psIn.posInProj.w - psIn.prevPosInProj.xy / psIn.prevPosInProj.w;
@@ -696,7 +705,23 @@ SPSOut PSMainShadowReciever(SPSIn psIn)
 {
     SPSOut psOut;
 
-    psOut.color = PSMainCore(psIn, true);
+    psOut.color = PSMainCore(psIn, true, true);
+
+    psOut.depth = psIn.depthInView;
+    
+    float2 vel = psIn.posInProj.xy / psIn.posInProj.w - psIn.prevPosInProj.xy / psIn.prevPosInProj.w;
+    float velocityz = psIn.posInProj.z / psIn.posInProj.w - psIn.prevPosInProj.z / psIn.prevPosInProj.w;
+    float4 velo = { vel, velocityz, 0 };
+    psOut.velocity = velo;
+    
+    return psOut;
+}
+
+SPSOut PSMainShadowRecieverNoNormalMap(SPSIn psIn)
+{
+    SPSOut psOut;
+
+    psOut.color = PSMainCore(psIn, true, false);
 
     psOut.depth = psIn.depthInView;
     

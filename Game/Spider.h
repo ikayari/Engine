@@ -4,10 +4,12 @@ class Slow;
 class Sound;
 class EffectManage;
 class Player;
-class Spider :  public IGameObject
+class EnemyUI;
+class Spider : public Enemy
 {
 public:
 	bool Start();
+	~Spider();
 	void Update();
 	void Render(RenderContext& rc);
 	/// <summary>
@@ -16,7 +18,7 @@ public:
 	void Collision();
 	void ManageState();
 	void PlayAnimation();
-	void ProcessComonStateTransition();
+	void ProcessCommonStateTransition();
 
 	void ProcessIdleStateTransition();
 	void ProcessDamageStateTransition();
@@ -87,6 +89,27 @@ public:
 	void MoveChara(float s);
 
 	void OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName);
+
+	void EnableMovieMode()
+	{
+		m_MovieMode = true;
+	}
+	void DisableMovieMode()
+	{
+		m_MovieMode = false;
+	}
+	void SetUseGravity(bool b)
+	{
+		m_gravity = b;
+	}
+	const CharacterController& GetCharacterController()
+	{
+		return m_charaCon;
+	}
+	void SetModelDraw(bool b)
+	{
+		m_modelDraw = b;
+	}
 private:
 	Vector3 m_position;
 	Vector3 m_scale;
@@ -96,7 +119,6 @@ private:
 	CharacterController m_charaCon;
 
 	ModelRender m_modelRender;
-
 
 	Slow* m_slow;
 
@@ -109,7 +131,7 @@ private:
 	float m_NoDamageTimer = 0.0f;
 	float m_modelClipRate = 0.0f;
 	bool m_NoDamage = false;
-	int m_HP = 5;
+	float m_HP = 3;
 	enum EnAnimationClip {
 		enAnimationClip_Idle,			    //待機アニメーション。	
 		enAnimationClip_Walk,				//歩行アニメーション。
@@ -127,5 +149,12 @@ private:
 	};
 	EnSpiderState m_spiderState = enSpider_Idle;		//スパイダーステート。
 	AnimationClip m_animationClips[enAnimationClip_Num];		//アニメーションクリップ。
+	EnemyUI* m_UI;
+
+	bool m_MovieMode = false;
+	bool m_gravity = false;
+	bool m_modelDraw = true;
+	Vector3 m_gravitySpeed = Vector3::Zero;
 };
+
 

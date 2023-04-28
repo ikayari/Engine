@@ -8,12 +8,19 @@ namespace nsK2EngineLow {
 	SceneLight::SceneLight()
 	{
 		Vector3 dir = { 1.0f,-0.5f,1.0f };
-		m_light.directionLight.SetDirection(dir);
+		m_light.directionLight[0].SetDirection(dir);
+		m_light.directionLight[0].SetColor(Vector3::One);
+		dir = { 1.0f,-0.5f,-1.0f };
+		m_light.directionLight[1].SetDirection(dir);
+		m_light.directionLight[1].SetColor(Vector3::One);
+		dir = { -1.0f,-0.5f,1.0f };
+		m_light.directionLight[2].SetDirection(dir);
+		m_light.directionLight[2].SetColor(Vector3::One);
+		dir = { -1.0f,-0.5f,-1.0f };
+		m_light.directionLight[3].SetDirection(dir);
+		m_light.directionLight[3].SetColor(Vector3::One);
 
-		m_light.directionLight.SetColor({ 5.0f,5.0f,5.0f });
-
-		SetAmbientLight({0.3f,0.3f,0.3f});
-
+		SetAmbientLight({0.4f,0.4f,0.4f});
 		m_light.pointLight.SetPosition({ 0.0f,50.0f,50.0 });
 
 		m_light.pointLight.SetColor({ 0.0f,0.0f,0.0f });

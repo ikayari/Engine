@@ -16,7 +16,7 @@ namespace nsK2EngineLow
 
 	void RenderingEngine::ShadowMapDraw(RenderContext& rc)
 	{
-		Vector3 dir = { g_sceneLight.GetDirectionLightDirection().x,g_sceneLight.GetDirectionLightDirection().y,g_sceneLight.GetDirectionLightDirection().z };
+		Vector3 dir = { g_sceneLight.GetDirectionLightDirection(0).x,g_sceneLight.GetDirectionLightDirection(0).y,g_sceneLight.GetDirectionLightDirection(0).z };
 		m_shadowMapRender.Render(rc, dir, m_renderobject);
 
 
@@ -35,6 +35,7 @@ namespace nsK2EngineLow
 		
 
 		m_postEffect->Render(rc);
+
 		DrawOutLine(rc);
 
 		SpriteInitData luminanceSpriteInitData;
@@ -71,6 +72,7 @@ namespace nsK2EngineLow
 			g_renderingEngine.GetmainRenderTarget().GetDSVCpuDescriptorHandle()
 		);
 		rc.ClearRenderTargetView(g_renderingEngine.GetdepthOutLineRenderTarget());
+		
 			for (auto& renderObj : m_renderobject) {
 			renderObj->OnRenderOutLineModel(rc);
 		}

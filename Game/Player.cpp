@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "Slow.h"
 #include "EffectManage.h"
+#include "PlayerUI.h"
 
 namespace
 {
@@ -36,6 +37,8 @@ bool Player::Start()
 	m_animationClips[enAnimationClip_DadgeAttack].SetLoopFlag(false);
 	m_animationClips[enAnimationClip_Down].Load("Assets/animData/Player/down.tka");
 	m_animationClips[enAnimationClip_Down].SetLoopFlag(false);
+	m_animationClips[enAnimationClip_Step].Load("Assets/animData/Player/step.tka");
+	m_animationClips[enAnimationClip_Step].SetLoopFlag(false);
 		
 
 	m_modelRender.SetCasterShadow(true);
@@ -88,19 +91,33 @@ bool Player::Start()
 		OnAnimationEvent(clipName, eventName);
 		});
 
+	m_rotation.Apply(m_forward);
+	m_forward.Normalize();
+
 	m_slow = FindGO<Slow>("slow");
 	m_effect = FindGO<EffectManage>("effectManage");
 	//m_position.y += 150.0f;
 	m_charaCon.Init(20.0f, 60.0f, m_position);
 	m_charaCon.SetPosition(m_position);
+	m_playerHP = NewGO<PlayerUI>(0, "playerUI");
+	m_playerHP->SetMaxHP(m_hp);
+	m_playerHP->SetNowHP(m_hp);
 	return true;
 }
 void Player::Update()
 {
 	
-
-	Move();
+	if (m_MovieMode)
+	{
+		m_modelRender.PlayAnimation(enAnimationClip_Idle, 1.0f);
+		m_modelRender.SetTRS(m_position, m_rotation, m_scale);
+		m_modelRender.Update();
+		return;
+	}
+	
+	m_playerHP->SetNowHP(m_hp);
 	Rotation();
+	Move();
 	Collision();
 	ManageState();
 	Attack();
@@ -187,6 +204,10 @@ void Player::ManageState()
 		//移動速度を設定。
 		SetMoveSpeed(300.0f);
 		break;
+	case enPlayerState_Step:
+		ProcessStepStateTransition();
+		SetMoveSpeed(400.0f);
+		break;
 	case enPlayerState_ReceiveDamage:
 		//被ダメージ時のステート遷移処理
 		ProcessReceiveDamageStateTransition();
@@ -212,24 +233,23 @@ void Player::ManageState()
 }
 void Player::ProcessCommonStateTransition()
 {
+	m_dadge = false;
 	if (m_playerState != enPlayerState_Attack)
 	{
 		m_attack = false;
 	}
 	if (g_pad[0]->IsPress(enButtonRB1))
 	{
-		m_AttackNum = 0;
+		m_AttackNum =0;
 		m_playerState = enPlayerState_Attack;
 		return;
 	}
 
-	if (g_pad[0]->IsPress(enButtonStart))
+
+	if (g_pad[0]->IsPress(enButtonB))
 	{
-		m_dadge = true;
-	}
-	else
-	{
-		m_dadge = false;
+		m_playerState = enPlayerState_Step;
+		return;
 	}
 	//移動しているとき
 	if (fabsf(m_moveSpeed.x) >= 0.001f || fabsf(m_moveSpeed.z) >= 0.001f)
@@ -237,7 +257,7 @@ void Player::ProcessCommonStateTransition()
 		//Bボタンを押すと走る。
 		if (g_pad[0]->IsPress(enButtonB))
 		{
-			m_playerState = enPlayerState_Run;
+			m_playerState = enPlayerState_Step;
 			return;
 		}
 		//押していないときは歩く。
@@ -259,6 +279,17 @@ void Player::ProcessCommonStateTransition()
 }
 void Player::PlayAnimation()
 {
+	if (m_playerState != enPlayerState_Dadge)
+	{
+		m_zanzou1.SetAnimationSpeed(1.2f);
+		m_zanzou1.PlayAnimation(enAnimationClip_Idle, 0.2f);
+		m_zanzou2.SetAnimationSpeed(1.2f);
+		m_zanzou2.PlayAnimation(enAnimationClip_Idle, 0.2f);
+		m_zanzou3.SetAnimationSpeed(1.2f);
+		m_zanzou3.PlayAnimation(enAnimationClip_Idle, 0.2f);
+		m_zanzou4.SetAnimationSpeed(1.2f);
+		m_zanzou4.PlayAnimation(enAnimationClip_Idle, 0.2f);
+	}
 	m_modelRender.SetAnimationSpeed(1.0f);
 	switch (m_playerState)
 	{
@@ -266,67 +297,28 @@ void Player::PlayAnimation()
 	case enPlayerState_Idle:
 		//待機アニメーションを再生。
 		m_modelRender.SetAnimationSpeed(1.0f);
-		m_modelRender.PlayAnimation(enAnimationClip_Idle, 0.3f);
-
-		m_zanzou1.SetAnimationSpeed(1.0f);
-		m_zanzou1.PlayAnimation(enAnimationClip_Idle, 0.2f);
-		m_zanzou2.SetAnimationSpeed(1.0f);
-		m_zanzou2.PlayAnimation(enAnimationClip_Idle, 0.2f);
-		m_zanzou3.SetAnimationSpeed(1.0f);
-		m_zanzou3.PlayAnimation(enAnimationClip_Idle, 0.2f);
-		m_zanzou4.SetAnimationSpeed(1.0f);
-		m_zanzou4.PlayAnimation(enAnimationClip_Idle, 0.2f);
+		m_modelRender.PlayAnimation(enAnimationClip_Idle, 0.3f);		
 		break;
 		//歩きステートの時。
 	case enPlayerState_Walk:
 		m_modelRender.SetAnimationSpeed(1.2f);
 		//歩きアニメーションを再生。
 		m_modelRender.PlayAnimation(enAnimationClip_Walk, 0.3f);
-
-		m_zanzou1.SetAnimationSpeed(1.2f);
-		m_zanzou1.PlayAnimation(enAnimationClip_Walk, 0.2f);
-		m_zanzou2.SetAnimationSpeed(1.2f);
-		m_zanzou2.PlayAnimation(enAnimationClip_Walk, 0.2f);
-		m_zanzou3.SetAnimationSpeed(1.2f);
-		m_zanzou3.PlayAnimation(enAnimationClip_Walk, 0.2f);
-		m_zanzou4.SetAnimationSpeed(1.2f);
-		m_zanzou4.PlayAnimation(enAnimationClip_Walk, 0.2f);
 		break;
 		//走りステートの時。
 	case enPlayerState_Run:
 		m_modelRender.SetAnimationSpeed(1.2f);
 		//走りアニメーションを再生。
 		m_modelRender.PlayAnimation(enAnimationClip_Run, 0.3f);
-
-
-		m_zanzou1.SetAnimationSpeed(1.2f);
-		m_zanzou1.PlayAnimation(enAnimationClip_Run, 0.2f);
-		m_zanzou2.SetAnimationSpeed(1.2f);
-		m_zanzou2.PlayAnimation(enAnimationClip_Run, 0.2f);
-		m_zanzou3.SetAnimationSpeed(1.2f);
-		m_zanzou3.PlayAnimation(enAnimationClip_Run, 0.2f);
-		m_zanzou4.SetAnimationSpeed(1.2f);
-		m_zanzou4.PlayAnimation(enAnimationClip_Run, 0.2f);
 		break;
 
 	case enPlayerState_ReceiveDamage:
 		m_modelRender.SetAnimationSpeed(4.0f * m_slow->GetSlowRatio() / 2.0f);
 		m_modelRender.PlayAnimation(enAnimationClip_Damage, 0.05f);
-
-
-		m_zanzou1.SetAnimationSpeed(4.0f*m_slow->GetSlowRatio() / 2.0f);
-		m_zanzou1.PlayAnimation(enAnimationClip_Damage, 0.2f);
-		m_zanzou2.SetAnimationSpeed(4.0f * m_slow->GetSlowRatio() / 2.0f);
-		m_zanzou2.PlayAnimation(enAnimationClip_Damage, 0.2f);
-		m_zanzou3.SetAnimationSpeed(4.0f * m_slow->GetSlowRatio() / 2.0f);
-		m_zanzou3.PlayAnimation(enAnimationClip_Damage, 0.2f);
-		m_zanzou4.SetAnimationSpeed(4.0f * m_slow->GetSlowRatio() / 2.0f);
-		m_zanzou4.PlayAnimation(enAnimationClip_Damage, 0.2f);
 		break;
 	case enPlayerState_Dadge:
 		m_modelRender.SetAnimationSpeed(4.0f);
 		m_modelRender.PlayAnimation(enAnimationClip_Dadge, 0.2f);
-
 
 		m_zanzou1.SetAnimationSpeed(4.0f);
 		m_zanzou1.PlayAnimation(enAnimationClip_Dadge, 0.2f);
@@ -335,9 +327,7 @@ void Player::PlayAnimation()
 		m_zanzou3.SetAnimationSpeed(4.0f);
 		m_zanzou3.PlayAnimation(enAnimationClip_Dadge, 0.2f);
 		m_zanzou4.SetAnimationSpeed(4.0f);
-		m_zanzou4.PlayAnimation(enAnimationClip_Dadge, 0.2f);
-		
-
+		m_zanzou4.PlayAnimation(enAnimationClip_Dadge, 0.2f);		
 		if (m_slow->IsSlow())
 		{
 			m_modelRender.SetAnimationSpeed(4.0f * m_slow->GetSlowRatio()/2.0f);
@@ -346,17 +336,20 @@ void Player::PlayAnimation()
 			m_zanzou3.SetAnimationSpeed(4.0f * m_slow->GetSlowRatio()/2.0f);
 			m_zanzou4.SetAnimationSpeed(4.0f * m_slow->GetSlowRatio()/2.0f);
 			
-		}
-
-		
+		}		
 		break;
-	case enPlayerState_Attack:
-					
+	case enPlayerState_Step:
+		m_modelRender.SetAnimationSpeed(3.0f);
+		//歩きアニメーションを再生。
+		m_modelRender.PlayAnimation(enAnimationClip_Step,0.2f);
+		break;
+	case enPlayerState_Attack:					
 		PlayAttackAnimation(m_AttackNum);
 		break;
 	case enPlayerState_Down:
 		m_modelRender.SetAnimationSpeed(4.0f * m_slow->GetSlowRatio() / 2.0f);
 		m_modelRender.PlayAnimation(enAnimationClip_Down);
+		break;
 	default:
 		break;
 	}
@@ -369,13 +362,50 @@ void Player::PlayAttackAnimation(int num)
 }
 void Player::Move()
 {
+	//xzの移動速度を0.0fにする。
+	m_moveSpeed.x = 0.0f;
+	m_moveSpeed.z = 0.0f;
+	if (m_playerState == enPlayerState_Step)
+	{
+		Vector3 move;
+		//xzの移動速度を0.0fにする。
+		move.x = 0.0f;
+		move.z = 0.0f;
+		//左スティックの入力量を取得。
+		Vector3 stickL;
+		stickL.x = g_pad[0]->GetLStickXF();
+		stickL.y = g_pad[0]->GetLStickYF();
+		//カメラの前方向と右方向のベクトル。
+		Vector3 forward = g_camera3D->GetForward();
+		Vector3 right = g_camera3D->GetRight();
+		//y方向には移動させない。
+		forward.y = 0.0f;
+		right.y = 0.0f;
+		//正規化
+		forward.Normalize();
+		right.Normalize();
+		//左スティックの入力量と移動速度を乗算
+		right *= stickL.x;
+		forward *= stickL.y;
+		//移動速度加算
+		move += right + forward;
+		move.Normalize();
+		Vector3 speed = m_forward;
+		Vector3 Movespeed;
+		Movespeed.Lerp(0.1f, speed, move);
+		Movespeed.Normalize();
+		Movespeed *= GetMoveSpeed();
+		m_rotation.SetRotationYFromDirectionXZ(Movespeed);
+		
+		m_position=m_charaCon.Execute(Movespeed, 1.0f / 60.0f);
+		m_modelRender.SetPosition(m_position);
+		m_modelRender.Update();
+		return;
+	}
 	if (m_playerState == enPlayerState_Down)
 	{
 		return;
 	}
-	//xzの移動速度を0.0fにする。
-	m_moveSpeed.x = 0.0f;
-	m_moveSpeed.z = 0.0f;
 
 	//左スティックの入力量を取得。
 	Vector3 stickL;
@@ -406,24 +436,35 @@ void Player::Move()
 	}
 	//キャラクターコントローラーを使って座標を移動させる。
 	m_position = m_charaCon.Execute(m_moveSpeed, 1.0f / 60.0f);
-
 	//絵描きさんに座標を教える。
 	m_modelRender.SetPosition(m_position);
 }
 void Player::Rotation()
 {
+
 	//移動速度があるとき
 	if (fabsf(m_moveSpeed.x) >= 0.001f || fabsf(m_moveSpeed.z) >= 0.001f)
 	{
 		//回転を作成
-
 		m_rotation.SetRotationYFromDirectionXZ(m_moveSpeed);
 		//回転を適用
 		m_modelRender.SetRotation(m_rotation);
 	}
+	if (m_playerState == enPlayerState_Step)
+	{	
+
+		//回転を適用
+		m_modelRender.SetRotation(m_rotation);
+	}
+	m_forward = Vector3::AxisZ;
+	m_rotation.Apply(m_forward);
 }
 void Player::Collision()
 {
+	if (m_playerState == enPlayerState_Down)
+	{
+		return;
+	}
 	//敵の攻撃用のコリジョンの配列を取得する。
 	const auto& collisions = g_collisionObjectManager->FindCollisionObjects("Enemy_Attack");
 	//配列をfor分で回す。
@@ -442,21 +483,17 @@ void Player::Collision()
 				{
 					m_playerState = enPlayerState_ReceiveDamage;
 					Vector3 y = Vector3::AxisY * 80.0f;
-
-					m_effect->PlayEffect(1, m_position + y, Vector3::One * 10.0f);
-					
+					m_hp--;
+					m_effect->PlayEffect(1, m_position + y, Vector3::One * 10.0f);					
 					if (m_hp <= 0)
 					{
 						m_playerState = enPlayerState_Down;
 						m_slow->StartSlowMotion(1.0f);
 					}
 					else
-					{
-						m_hp--;
+					{						
 						m_slow->StartSlowMotion(0.5f);
-					}
-
-					
+					}									
 				}
 			}
 		}
@@ -526,14 +563,20 @@ void Player::ProcessAttackStateTransition()
 			m_AttackNum++;
 			m_nextAttack = false;
 		}
-
 	}
-
 	if (!m_modelRender.IsPlayingAnimation())
 	{
 		m_playerState = enPlayerState_Idle;
 		m_AttackNum = 0;
 		m_nextAttack = false;
+	}
+}
+void Player::ProcessStepStateTransition()
+{
+	m_dadge = true;
+	if (!m_modelRender.IsPlayingAnimation())
+	{
+		ProcessDadgeStateTransition();
 	}
 }
 void Player::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName)
@@ -590,7 +633,7 @@ void Player::Attack()
 		m_rotation.Apply(Z);
 		Vector3 pos = m_position+Z*45.0f;
 		pos.y += 60.0f;
-		collision->CreateBox(pos, m_rotation, { 80.0f,120.0f,60.0f });
+		collision->CreateBox(pos, m_rotation, {100.0f,150.0f,100.0f});
 		collision->SetName("Player_Attack");
 	}
 }

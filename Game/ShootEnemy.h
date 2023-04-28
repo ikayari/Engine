@@ -3,10 +3,13 @@
 class Slow;
 class Sound;
 class Player;
+class EffectManage;
+class EnemyUI;
 class ShootEnemy:public Enemy
 {
 public:
 	bool Start();
+	~ShootEnemy();
 	void Update();
 	void Render(RenderContext& rc);
 
@@ -15,6 +18,17 @@ public:
 	void Collision();
 
 	void Rotation();
+
+	void ManageState();
+
+	void PlayAnimation();
+
+	void ProcessIdleStateTransition();
+	void ProcessDamageStateTransition();
+	void ProcessMoveStateTransition();
+	void ProcessDeadStateTransition();
+	
+	void ProcessCommonStateTransition();
 	/// <summary>
 	/// 座標をセット。
 	/// </summary>
@@ -71,6 +85,21 @@ public:
 	{
 		return m_forward;
 	}
+	void MoveChara(float s);
+	void MoveCharaToPosition(float s);
+
+	void EnableMovieMode()
+	{
+		m_MovieMode = true;
+	}
+	void DisableMovieMode()
+	{
+		m_MovieMode = false;
+	}
+	void SetMovePosition(Vector3& pos)
+	{
+		m_MovePosition = pos;
+	}
 private:
 	Vector3 m_position;
 	Vector3 m_scale;
@@ -87,25 +116,33 @@ private:
 
 	Sound* m_sound;
 
+	SoundSource* m_RobotIdleSE;
+
 	float m_timer = 0.0f;
 	float m_NoDamageTimer = 0.0f;
 	bool m_NoDamage = false;
-	int m_HP = 5;
+	float m_HP = 2;
 	enum EnAnimationClip {
-		enAnimationClip_WakeIdle,			//起動状態待機アニメーション。
-		enAnimationClip_DownIdle,			//待機状態待機アニメーション。	
-		enAnimationClip_Wake,				//起動アニメーション。
-		enAnimationClip_Down,				//待機アニメーション
+		enAnimationClip_Idle,
+		enAnimationClip_Move,
+		enAnimationClip_Dead,
+		enAnimationClip_Damage,
 		enAnimationClip_Num
 	};
 	enum EnShootEnemyState {
-		enShootEnemyState_DownIdle,
-		enShootEnemyState_WakeIdle,
-		enShootEnemyState_Wake,
-		enShootEnemyState_Down
+		enShootEnemyState_Idle,
+		enShootEnemyState_Move,
+		enShootEnemyState_Dead,
+		enShootEnemyState_Damage
 	};
-	EnShootEnemyState m_playerState = enShootEnemyState_DownIdle;			//プレイヤーステート。
+	EnShootEnemyState m_shootEnemyState = enShootEnemyState_Idle;			//ステート。
 	AnimationClip m_animationClips[enAnimationClip_Num];		//アニメーションクリップ。
+	EffectManage* m_effect;
+	float m_modelClipRate = 0.0f;
 	
-};
+	EnemyUI* m_UI;
 
+	bool m_MovieMode = false;
+
+	Vector3 m_MovePosition = Vector3::Zero;
+};

@@ -5,8 +5,9 @@
 
 class EffectManage;
 class Slow;
-class ShootEnemy;
-class Spider;
+class Sound;
+class Stage;
+class FinalWaveMovie;
 class Game : public IGameObject
 {
 public:
@@ -25,40 +26,38 @@ public:
 	{
 		EnemyCount--;
 	};
+	void AddEnemy()
+	{
+		EnemyCount++;
+	};
 private:
 	ModelRender		m_modelRender;
 	ModelRender		m_modelRender2;
 	ModelRender     SkyCube;
 	ModelRender     m_backGround;
+	ModelRender     m_backGroundBuilding;
 	ModelRender     m_box;
 	Quaternion		m_rotation;
 	PhysicsStaticObject PSO;
 
-	Vector3 hoge;
-	Quaternion hogehoge;
-
 	Player* m_player;
-	Player* hogeho;
-	ShootEnemy* m_shootEnemy;
+
+	
 	GameCamera* m_gameCamera;
-	Spider* m_spider;
-	Spider* m_spider1;
-	Spider* m_spider2;
-	Spider* m_spider3;
 
 	Slow* m_slow;
 	EffectManage* m_Effect;
 
 	PhysicsGhostObject m_PGO;
-	CollisionObject* m_CO;
 
 	EffectEmitter* m_effectEmitter;
-	FontRender font;
+
+	FinalWaveMovie* m_finalWaveMovie;
 
 	LevelRender					m_levelRender;
 	LevelRender					m_levelRender2;
-
-
+	Sound* m_sound;
+	Stage* m_stage;
 	int EnemyCount = 0;
 
 	int m_wave = 0;

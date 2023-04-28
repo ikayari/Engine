@@ -1,0 +1,5 @@
+4
+5,Gauge,44,../../Game/Assets/sprite/UI/Player/Gauge.png,-353.8461538461538,375.0000000000001,780,66,10,0.7624060150375939,0.12932330827067703,0.5,0.5,9,Gauge.dds
+3,Bar,42,../../Game/Assets/sprite/UI/Player/Bar.png,-735.576923076923,375.0000000000001,765,54,10,0.7473684210526315,0.10676691729323343,0.0,0.5,7,Bar.dds
+9,GameClear,45,../../Game/Assets/sprite/Result/GameClear.png,0.0,1.1368683772161603e-13,1600,900,10,1.0,1.0,0.5,0.5,13,GameClear.dds
+8,GameOver,44,../../Game/Assets/sprite/Result/GameOver.png,0.0,1.1368683772161603e-13,1600,900,10,1.0,1.0,0.5,0.5,12,GameOver.dds

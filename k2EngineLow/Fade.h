@@ -1,10 +1,20 @@
 #pragma once
 
 namespace nsK2EngineLow {
-	
+	enum EnFadeImage
+	{
+		enFadeImage_Loading,
+		enFadeImage_None
+	};
 	class Fade
 	{
 	public:
+
+
+		void SetFadeImage(EnFadeImage image)
+		{
+			m_fadeImage = image;
+		}
 		void Init();
 		void Render(RenderContext& renderContext);
 		void Update();
@@ -45,8 +55,10 @@ namespace nsK2EngineLow {
 			enState_Idle,			//アイドル中。
 		};
 		Sprite		m_sprite;				//スプライトレンダ―。
+		Sprite		m_sprite2;				//スプライトレンダ―。
 		EnState				m_state = enState_Idle;		//状態。
 		float				m_currentAlpha = 1.0f;		//現在のα値。ここを変更すると画像が透明になる。
+		EnFadeImage m_fadeImage = enFadeImage_Loading;
 	};
 	extern Fade g_fade;
 }

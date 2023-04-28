@@ -95,10 +95,10 @@ namespace nsK2EngineLow {
 		}
 		
 	};
-
+	const int MAX_DIRECTION_LIGHT = 4;
 	struct Light
 	{
-		DirectionLight directionLight;
+		DirectionLight directionLight[MAX_DIRECTION_LIGHT];
 		PointLight pointLight;
 		SpotLight spotLight;
 		Vector3 ambientLight;
@@ -109,7 +109,7 @@ namespace nsK2EngineLow {
 
 		class SceneLight
 		{
-
+			
 
 
 		public:
@@ -154,9 +154,13 @@ namespace nsK2EngineLow {
 			{
 				return m_light.pointLight.GetPosition();
 			}
-			const Vector4& GetDirectionLightDirection()const
+			const Vector4& GetDirectionLightDirection(int i)const
 			{
-				return m_light.directionLight.GetDirection();
+				if (i > MAX_DIRECTION_LIGHT || i < 0)
+				{
+					return Vector4{ -1.0f,-1.0f,-1.0f,-1.0f };
+				}
+				return m_light.directionLight[i].GetDirection();
 			}
 			/// <summary>
 			/// スポットライトに回転を加算する。
@@ -178,9 +182,13 @@ namespace nsK2EngineLow {
 			/// ディレクションライトの色を設定する。
 			/// </summary>
 			/// <param name="col">カラー。</param>
-			void SetDirectionColor(const Vector3& col)
+			void SetDirectionColor(const Vector3& col,int i)
 			{
-				m_light.directionLight.SetColor(col);
+				if (i > MAX_DIRECTION_LIGHT || i < 0)
+				{
+					return;
+				}
+				m_light.directionLight[i].SetColor(col);
 			}
 
 

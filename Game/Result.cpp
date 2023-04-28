@@ -1,29 +1,39 @@
 #include "stdafx.h"
 #include "Result.h"
 #include "Title.h"
+#include "Sound.h"
 
 
 
 bool Result::Start()
 {
-	g_fade.StartFadeIn();
-	sprite.Init("Assets/sprite/Result/GameOver.dds", 1600, 900);
-	/*g_soundEngine->ResistWaveFileBank(100, "Assets/sound/BGM/You_and_Me.wav");
-	g_soundEngine->ResistWaveFileBank(250, "Assets/sound/SE/kettei.wav");
-	m_bgm = NewGO<SoundSource>(0);
-	m_bgm->Init(100);
-	m_bgm->Play(true);
-	m_bgm->SetVolume(0.1f);*/
 
+	m_sound = FindGO<Sound>("sound");
+	switch (m_result)
+	{
+	case enResultType_GameClear:
+		m_spriteRender.Init("Assets/sprite/Result/GameClear.dds", 1600, 900);
+		m_sound->StopBGM();
+		m_sound->PlaySE(103, 0.1f);
+		break;
+	case enResultType_GameOver:
+		m_spriteRender.Init("Assets/sprite/Result/GameOver.dds", 1600, 900);
+		m_sound->PlayBGM(102, 0.5f);
+		break;
+	default:
+		break;
+	}
+	
+
+	g_fade.StartFadeIn();
 	return true;
 }
 Result::~Result()
 {
-	//DeleteGO(m_bgm);
+	
 }
 void Result::Update()
 {
-
 	if (m_isWaitFadeout) {
 		if (!g_fade.IsFade()) {
 			NewGO<Title>(0, "title");
@@ -42,6 +52,6 @@ void Result::Update()
 }
 void Result::Render(RenderContext& rc)
 {
-	sprite.Draw(rc);
+	m_spriteRender.Draw(rc);
 
 }

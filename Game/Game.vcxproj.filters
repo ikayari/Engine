@@ -7,11 +7,17 @@
     <Filter Include="Enemy">
       <UniqueIdentifier>{4f517006-5b1a-4c70-9182-38aa79aa37b6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Effect">
+      <UniqueIdentifier>{9c07c575-99f0-4937-901c-cc0c8b3ba18e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{04c849fd-48f9-4f1b-b705-1effeef2c71e}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Sound">
       <UniqueIdentifier>{f930d111-89f5-48a3-a365-673c7e2b7a53}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Effect">
-      <UniqueIdentifier>{9c07c575-99f0-4937-901c-cc0c8b3ba18e}</UniqueIdentifier>
+    <Filter Include="Movie">
+      <UniqueIdentifier>{ef1c3489-075f-44b6-87f6-c3b1833ef45f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -45,6 +51,16 @@
     </ClCompile>
     <ClCompile Include="Title.cpp" />
     <ClCompile Include="Result.cpp" />
+    <ClCompile Include="EnemyUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage.cpp" />
+    <ClCompile Include="FinalWaveMovie.cpp">
+      <Filter>Movie</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -76,5 +92,15 @@
     </ClInclude>
     <ClInclude Include="Title.h" />
     <ClInclude Include="Result.h" />
+    <ClInclude Include="EnemyUI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerUI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Stage.h" />
+    <ClInclude Include="FinalWaveMovie.h">
+      <Filter>Movie</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

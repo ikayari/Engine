@@ -282,6 +282,12 @@ namespace nsK2EngineLow {
 			DirectX::XMVECTOR xmv = DirectX::XMLoadFloat3(&vec);
 			return DirectX::XMVector3LengthSq(xmv).m128_f32[0];
 		}
+		const Vector3& GetXZ()
+		{
+			Vector3 XZ;
+			XZ = { this->x,0.0f,this->z };
+			return XZ;
+		}
 
 		/// <summary>
 		/// ベクトルをスカラーで拡大。
@@ -419,6 +425,8 @@ namespace nsK2EngineLow {
 			Div(s);
 			return *this;
 		}
+
+
 	};
 	/// <summary>
 	/// 4次元ベクトルクラス。

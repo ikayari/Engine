@@ -11,6 +11,7 @@ namespace nsK2EngineLow {
 	{
 		Dithering dithering = en_normal;
 		bool recieveShadow = false;
+		bool NoNormalMap = false;
 	};
 	class ModelRender : public IRenderer
 	{
@@ -157,6 +158,10 @@ namespace nsK2EngineLow {
 		{
 			m_animation.AddAnimationEventListener(eventListener);
 		}
+		void SetHasNormalMap(bool t)
+		{
+			m_modelRenderID.NoNormalMap = t;
+		}
 	private:
 		/// <summary>
 		/// スケルトンの初期化。
@@ -225,6 +230,7 @@ namespace nsK2EngineLow {
 		EnModelUpAxis			m_enFbxUpAxis = enModelUpAxisZ;			// FBXの上方向。
 		bool					m_isShadowCaster = true;				//シャドウを落とす？
 		bool					m_isOutLineModel = false;				//アウトライン描画モデル？
+		
 
 		float m_clip = 0.0f;
 

@@ -11,14 +11,34 @@ namespace nsK2EngineLow {
 		spriteInitData.m_fxFilePath = "Assets/shader/sprite.fx";
 		spriteInitData.m_alphaBlendMode = AlphaBlendMode_Trans;
 		m_sprite.Init(spriteInitData);
+		SpriteInitData spriteInitData2;
+		spriteInitData2.m_ddsFilePath[0] = "Assets/sprite/Fade/None.dds";
+		spriteInitData2.m_width = 1600;
+		spriteInitData2.m_height = 900;
+		spriteInitData2.m_fxFilePath = "Assets/shader/sprite.fx";
+		spriteInitData2.m_alphaBlendMode = AlphaBlendMode_Trans;
+		m_sprite2.Init(spriteInitData2);
 		
 	}
 
 	void Fade::Render(RenderContext& renderContext)
 	{
 		if (m_currentAlpha > 0.0f) {
-			m_sprite.SetMulColor({ 1.0f, 1.0f, 1.0f, m_currentAlpha });
-			m_sprite.Draw(renderContext);
+			switch (m_fadeImage)
+			{
+			case enFadeImage_Loading:
+				m_sprite.SetMulColor({ 1.0f, 1.0f, 1.0f, m_currentAlpha });
+				m_sprite.Draw(renderContext);
+				break;
+			case enFadeImage_None:
+				m_sprite2.SetMulColor({ 1.0f, 1.0f, 1.0f, m_currentAlpha });
+				m_sprite2.Draw(renderContext);
+				break;
+			default:
+				break;
+			}
+
+			
 		}
 	}
 	void Fade::Update()
